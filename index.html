@@ -23,7 +23,9 @@
             min-height: 100vh;
         }
 
-        /* --- LOGIN / PEDIDA --- */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        /* --- LOGIN / PEDIDA (EL DISEÑO ORIGINAL) --- */
         #login-section {
             display: flex; flex-direction: column; justify-content: center;
             align-items: center; height: 100vh; text-align: center; padding: 20px;
@@ -34,7 +36,7 @@
             padding: 30px; border-radius: 40px;
             border: 4px solid var(--sanrio-pink);
             box-shadow: 0 10px 0px #F8C2D1;
-            max-width: 320px;
+            max-width: 320px; width: 100%;
         }
 
         .login-card h1 { font-family: 'Pacifico', cursive; color: var(--sanrio-pink); font-size: 2rem; margin: 10px 0; }
@@ -43,21 +45,25 @@
             background: var(--sanrio-pink); color: white; border: none;
             padding: 15px 40px; border-radius: 50px; font-size: 1.2rem;
             font-weight: bold; cursor: pointer; margin-top: 20px;
-            box-shadow: 0 4px 0 #D1708F;
+            box-shadow: 0 4px 0 #D1708F; width: 100%;
         }
 
         #btn-no {
             background: #E0E0E0; color: #999; border: none;
             padding: 10px 20px; border-radius: 50px; cursor: pointer;
-            position: absolute; transition: 0.2s;
+            position: absolute; transition: 0.2s; font-family: inherit; font-weight: bold;
         }
 
-        /* --- DIARIO --- */
-        #diary-section { display: none; width: 100%; max-width: 450px; padding: 20px; }
+        /* --- CONTENEDOR PRINCIPAL DE LA APP --- */
+        #app-container {
+            display: none; width: 100%; max-width: 450px; padding: 20px 20px 80px 20px;
+        }
 
         header { text-align: center; padding: 20px 0; }
         header h2 { font-family: 'Pacifico', cursive; color: var(--sanrio-pink); font-size: 2.2rem; margin: 0; }
+        #counter { font-size: 0.9rem; font-weight: bold; color: var(--sanrio-pink); margin-top: 5px; display: block; }
 
+        /* --- PESTAÑA: DIARIO (DISEÑO ORIGINAL CON AÑADIDOS) --- */
         .message-input {
             background: white; border-radius: 25px; padding: 20px; margin-bottom: 20px;
             border: 2px solid var(--sanrio-pink);
@@ -68,13 +74,52 @@
             padding: 10px; font-family: inherit; resize: none; margin-bottom: 10px;
         }
 
+        .tools { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .sticker-selector { display: flex; gap: 8px; font-size: 1.3rem; }
+        .sticker { cursor: pointer; opacity: 0.5; transition: 0.2s; }
+        .sticker.active { opacity: 1; transform: scale(1.2); }
+        .file-upload label { color: var(--sanrio-pink); font-weight: bold; cursor: pointer; font-size: 0.9rem; background: var(--soft-pink); padding: 5px 10px; border-radius: 10px;}
+        .file-upload input { display: none; }
+
         .post {
             background: white; border-radius: 20px; padding: 15px;
             margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
             border-left: 8px solid var(--sanrio-pink);
         }
-
+        .post-header { display: flex; justify-content: space-between; margin-bottom: 5px;}
         .post-date { font-size: 0.8rem; color: var(--sanrio-pink); font-weight: bold; }
+        .post-img { width: 100%; border-radius: 10px; margin-top: 10px; object-fit: cover; max-height: 250px; }
+
+        /* --- PESTAÑA: REPRODUCTOR --- */
+        #tab-music {
+            display: none; text-align: center; background: white; border-radius: 25px; 
+            padding: 30px 20px; border: 2px solid var(--sanrio-pink); margin-top: 10px;
+        }
+        
+        .music-img {
+            width: 120px; height: 120px; border-radius: 50%; object-fit: cover;
+            border: 4px solid var(--soft-pink); margin-bottom: 15px;
+        }
+        .music-title { font-size: 1.2rem; color: var(--text-love); font-weight: bold; margin-bottom: 20px;}
+        
+        audio { width: 100%; border-radius: 10px; outline: none; }
+        audio::-webkit-media-controls-panel { background-color: var(--soft-pink); }
+
+        /* --- NAVEGACIÓN INFERIOR --- */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: white; display: flex; justify-content: space-around;
+            padding: 15px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            border-top: 2px solid var(--soft-pink);
+        }
+
+        .nav-item {
+            text-align: center; color: #DDB8C5; font-size: 1.5rem;
+            cursor: pointer; transition: 0.3s; flex: 1;
+        }
+        .nav-item.active { color: var(--sanrio-pink); transform: translateY(-2px);}
+        .nav-label { font-size: 0.75rem; font-weight: bold; display: block; font-family: 'Quicksand', sans-serif;}
+
     </style>
 </head>
 <body>
@@ -84,30 +129,70 @@
             <div style="font-size: 3rem;">🎀</div>
             <h1>¡Hola!</h1>
             <p>Para acceder a nuestro rincón secreto, responde:</p>
-            <h2 style="font-size: 1.4rem;">¿Quieres salir conmigo?</h2>
-            <button class="btn-si" onclick="loginSuccess()">¡SÍ! ✨</button>
-            <button id="btn-no" onmouseover="huir()">No</button>
+            <h2 style="font-size: 1.4rem; margin: 20px 0;">¿Quieres salir conmigo?</h2>
+            
+            <div style="position: relative; height: 60px; display: flex; justify-content: center; align-items: center;">
+                <button class="btn-si" style="width: auto;" onclick="aceptar()">¡SÍ! ✨</button>
+                <button id="btn-no" onmouseover="huir()" ontouchstart="huir()">No</button>
+            </div>
         </div>
     </div>
 
-    <div id="diary-section">
+    <div id="app-container">
         <header>
             <h2>My Sweet Diary</h2>
-            <p>Un lugar para nosotros 🌸</p>
+            <span id="counter"></span>
         </header>
 
-        <div class="message-input">
-            <textarea id="msg-text" placeholder="Escribe un nuevo recuerdo..."></textarea>
-            <button class="btn-si" style="width: 100%; padding: 10px;" onclick="addPost()">Publicar 💌</button>
+        <div id="tab-diary">
+            <div class="message-input">
+                <textarea id="msg-text" rows="3" placeholder="Escribe un nuevo recuerdo..."></textarea>
+                
+                <div class="tools">
+                    <div class="sticker-selector" id="stickers">
+                        <span class="sticker active" onclick="selectSticker(this)">🌸</span>
+                        <span class="sticker" onclick="selectSticker(this)">🎀</span>
+                        <span class="sticker" onclick="selectSticker(this)">🍓</span>
+                        <span class="sticker" onclick="selectSticker(this)">✨</span>
+                    </div>
+                    <div class="file-upload">
+                        <label for="img-upload">📷 Añadir Foto</label>
+                        <input type="file" id="img-upload" accept="image/*">
+                    </div>
+                </div>
+                
+                <button class="btn-si" style="margin-top: 0; padding: 10px;" onclick="addPost()">Publicar 💌</button>
+            </div>
+            <div id="posts-container"></div>
         </div>
 
-        <div id="posts-container"></div>
+        <div id="tab-music">
+            <img src="https://via.placeholder.com/150/FFDEEB/7D5A6A?text=Foto" class="music-img" alt="Nosotros">
+            <div class="music-title">Para cuando me eches de menos ☁️</div>
+            
+            <audio controls>
+                <source src="cancion.mp3" type="audio/mpeg">
+                Tu navegador no soporta el audio.
+            </audio>
+            
+            <p style="margin-top: 20px; font-size: 0.9rem;">Dale al play y acuérdate de mí. ✨</p>
+        </div>
+
+        <nav class="bottom-nav">
+            <div class="nav-item active" id="nav-diary" onclick="switchTab('diary')">
+                📖 <span class="nav-label">Diario</span>
+            </div>
+            <div class="nav-item" id="nav-music" onclick="switchTab('music')">
+                🎵 <span class="nav-label">Canción</span>
+            </div>
+        </nav>
     </div>
 
     <script>
-        // Si ya aceptó antes, saltar login
+        let currentSticker = '🌸';
+
         if(localStorage.getItem('isCouple') === 'true') {
-            showDiary();
+            iniciarApp();
         }
 
         function huir() {
@@ -118,24 +203,76 @@
             b.style.top = y + 'px';
         }
 
-        function loginSuccess() {
+        function aceptar() {
             localStorage.setItem('isCouple', 'true');
-            showDiary();
+            localStorage.setItem('fecha_novios', new Date().toISOString());
+            iniciarApp();
         }
 
-        function showDiary() {
+        function iniciarApp() {
             document.getElementById('login-section').style.display = 'none';
-            document.getElementById('diary-section').style.display = 'block';
+            document.getElementById('app-container').style.display = 'block';
+            calcularDias();
             loadPosts();
+        }
+
+        function switchTab(tab) {
+            document.getElementById('nav-diary').classList.remove('active');
+            document.getElementById('nav-music').classList.remove('active');
+            document.getElementById(`nav-${tab}`).classList.add('active');
+
+            if(tab === 'diary') {
+                document.getElementById('tab-diary').style.display = 'block';
+                document.getElementById('tab-music').style.display = 'none';
+            } else {
+                document.getElementById('tab-diary').style.display = 'none';
+                document.getElementById('tab-music').style.display = 'block';
+            }
+        }
+
+        function calcularDias() {
+            const fechaString = localStorage.getItem('fecha_novios');
+            if (fechaString) {
+                const fechaInicio = new Date(fechaString);
+                const hoy = new Date();
+                const diferencia = Math.floor((hoy - fechaInicio) / (1000 * 60 * 60 * 24));
+                document.getElementById('counter').innerText = `Día ${diferencia + 1} juntos`;
+            }
+        }
+
+        function selectSticker(element) {
+            document.querySelectorAll('.sticker').forEach(s => s.classList.remove('active'));
+            element.classList.add('active');
+            currentSticker = element.innerText;
         }
 
         function addPost() {
             const text = document.getElementById('msg-text').value;
-            if(!text) return;
+            const fileInput = document.getElementById('img-upload');
+            const file = fileInput.files[0];
+
+            if (!text && !file) return;
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) { guardarDatos(text, e.target.result); };
+                reader.readAsDataURL(file);
+            } else {
+                guardarDatos(text, null);
+            }
+        }
+
+        function guardarDatos(text, imagenBase64) {
             const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-            posts.unshift({ text, date: new Date().toLocaleDateString() });
+            posts.unshift({ 
+                text: text, 
+                sticker: currentSticker,
+                date: new Date().toLocaleDateString(),
+                image: imagenBase64
+            });
             localStorage.setItem('posts', JSON.stringify(posts));
             document.getElementById('msg-text').value = '';
+            document.getElementById('img-upload').value = '';
             loadPosts();
         }
 
@@ -144,8 +281,12 @@
             const posts = JSON.parse(localStorage.getItem('posts') || '[]');
             container.innerHTML = posts.map(p => `
                 <div class="post">
-                    <div class="post-date">${p.date} 🌸</div>
-                    <div class="post-content">${p.text}</div>
+                    <div class="post-header">
+                        <span class="post-date">${p.date}</span>
+                        <span>${p.sticker}</span>
+                    </div>
+                    <div>${p.text}</div>
+                    ${p.image ? `<img src="${p.image}" class="post-img">` : ''}
                 </div>
             `).join('');
         }
