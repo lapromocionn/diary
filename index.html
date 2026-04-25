@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Sweet Diary</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --soft-pink: #FFDEEB;
+            --sanrio-pink: #F48FB1;
+            --white-cloud: #FFFFFF;
+            --text-love: #7D5A6A;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--soft-pink);
+            color: var(--text-love);
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- LOGIN / PEDIDA --- */
+        #login-section {
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; height: 100vh; text-align: center; padding: 20px;
+        }
+
+        .login-card {
+            background: var(--white-cloud);
+            padding: 30px; border-radius: 40px;
+            border: 4px solid var(--sanrio-pink);
+            box-shadow: 0 10px 0px #F8C2D1;
+            max-width: 320px;
+        }
+
+        .login-card h1 { font-family: 'Pacifico', cursive; color: var(--sanrio-pink); font-size: 2rem; margin: 10px 0; }
+
+        .btn-si {
+            background: var(--sanrio-pink); color: white; border: none;
+            padding: 15px 40px; border-radius: 50px; font-size: 1.2rem;
+            font-weight: bold; cursor: pointer; margin-top: 20px;
+            box-shadow: 0 4px 0 #D1708F;
+        }
+
+        #btn-no {
+            background: #E0E0E0; color: #999; border: none;
+            padding: 10px 20px; border-radius: 50px; cursor: pointer;
+            position: absolute; transition: 0.2s;
+        }
+
+        /* --- DIARIO --- */
+        #diary-section { display: none; width: 100%; max-width: 450px; padding: 20px; }
+
+        header { text-align: center; padding: 20px 0; }
+        header h2 { font-family: 'Pacifico', cursive; color: var(--sanrio-pink); font-size: 2.2rem; margin: 0; }
+
+        .message-input {
+            background: white; border-radius: 25px; padding: 20px; margin-bottom: 20px;
+            border: 2px solid var(--sanrio-pink);
+        }
+
+        textarea {
+            width: 100%; border: 1px solid #eee; border-radius: 15px;
+            padding: 10px; font-family: inherit; resize: none; margin-bottom: 10px;
+        }
+
+        .post {
+            background: white; border-radius: 20px; padding: 15px;
+            margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-left: 8px solid var(--sanrio-pink);
+        }
+
+        .post-date { font-size: 0.8rem; color: var(--sanrio-pink); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="login-section">
+        <div class="login-card">
+            <div style="font-size: 3rem;">🎀</div>
+            <h1>¡Hola!</h1>
+            <p>Para acceder a nuestro rincón secreto, responde:</p>
+            <h2 style="font-size: 1.4rem;">¿Quieres salir conmigo?</h2>
+            <button class="btn-si" onclick="loginSuccess()">¡SÍ! ✨</button>
+            <button id="btn-no" onmouseover="huir()">No</button>
+        </div>
+    </div>
+
+    <div id="diary-section">
+        <header>
+            <h2>My Sweet Diary</h2>
+            <p>Un lugar para nosotros 🌸</p>
+        </header>
+
+        <div class="message-input">
+            <textarea id="msg-text" placeholder="Escribe un nuevo recuerdo..."></textarea>
+            <button class="btn-si" style="width: 100%; padding: 10px;" onclick="addPost()">Publicar 💌</button>
+        </div>
+
+        <div id="posts-container"></div>
+    </div>
+
+    <script>
+        // Si ya aceptó antes, saltar login
+        if(localStorage.getItem('isCouple') === 'true') {
+            showDiary();
+        }
+
+        function huir() {
+            const b = document.getElementById('btn-no');
+            const x = Math.random() * (window.innerWidth - 100);
+            const y = Math.random() * (window.innerHeight - 50);
+            b.style.left = x + 'px';
+            b.style.top = y + 'px';
+        }
+
+        function loginSuccess() {
+            localStorage.setItem('isCouple', 'true');
+            showDiary();
+        }
+
+        function showDiary() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('diary-section').style.display = 'block';
+            loadPosts();
+        }
+
+        function addPost() {
+            const text = document.getElementById('msg-text').value;
+            if(!text) return;
+            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+            posts.unshift({ text, date: new Date().toLocaleDateString() });
+            localStorage.setItem('posts', JSON.stringify(posts));
+            document.getElementById('msg-text').value = '';
+            loadPosts();
+        }
+
+        function loadPosts() {
+            const container = document.getElementById('posts-container');
+            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+            container.innerHTML = posts.map(p => `
+                <div class="post">
+                    <div class="post-date">${p.date} 🌸</div>
+                    <div class="post-content">${p.text}</div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
