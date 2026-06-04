@@ -942,7 +942,7 @@ async function verifyPin(pin){
 // Posts saved unencrypted first; re-encrypted after PIN is known.
 // localStorage is only cleared after IndexedDB write is VERIFIED.
 // ================================================================
-const FALLBACK_DATE = '2025-04-25T00:00:00.000Z';
+const FALLBACK_DATE = '2026-04-25T00:00:00.000Z';
 
 function migStatus(msg, pct) {
   document.getElementById('mig-status').textContent = msg;
@@ -1035,11 +1035,13 @@ async function earlyMigrate() {
 async function reEncryptPosts() {
   if (!cryptoKey) return;
   const all = await dbAll('posts');
-  const pending = all.filter(p => p.needsEncryption && p.text && !p.text.startsWith(ENC));
-  if (!pending.length) return;
+  // Encrypt ANY post whose text lacks the ENC: prefix — this catches:
+  //   • posts saved as plaintext by earlyMigrate() (needsEncryption: true)
+  //   • posts from the old broken doMig() that stored plaintext without the flag
+  //   • any other plaintext that slipped through
+  const pending = all.filter(p => p.text && !p.text.startsWith(ENC));
   for (const p of pending) {
-    const encText = await enc(p.text);
-    await dbPut('posts', {...p, text: encText, needsEncryption: false});
+    await dbPut('posts', {...p, text: await enc(p.text), needsEncryption: false});
   }
 }
 
