@@ -3,293 +3,1571 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Sweet Diary</title>
+    <title>My Sweet Diary 🎀</title>
     <link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Pacifico&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
     <style>
+        /* ============================================================
+           CSS VARIABLES + LIGHT THEME
+        ============================================================ */
         :root {
-            --soft-pink: #FFDEEB;
-            --sanrio-pink: #F48FB1;
-            --white-cloud: #FFFFFF;
-            --text-love: #7D5A6A;
+            --pink-50:  #FFF5F8;
+            --pink-100: #FFE4EF;
+            --pink-200: #FFCCE0;
+            --pink-300: #FFB3CC;
+            --pink-400: #F48FB1;
+            --pink-500: #E91E8C;
+            --pink-600: #C2185B;
+            --purple-100: #F3E5F5;
+            --purple-400: #CE93D8;
+            --purple-600: #8E24AA;
+            --text-primary: #4A2040;
+            --text-secondary: #9E6B85;
+            --text-muted: #C4A0B5;
+            --bg-body: #FFF5F8;
+            --bg-card: rgba(255,255,255,0.88);
+            --bg-input: rgba(255,255,255,0.96);
+            --border: rgba(244,143,177,0.28);
+            --shadow-sm: 0 2px 10px rgba(228,64,151,0.10);
+            --shadow-md: 0 6px 22px rgba(228,64,151,0.16);
+            --shadow-lg: 0 14px 40px rgba(228,64,151,0.22);
+            --radius-sm: 14px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-xl: 42px;
+            --spring: cubic-bezier(0.34,1.56,0.64,1);
+            --ease: cubic-bezier(0.4,0,0.2,1);
         }
 
+        /* ============================================================
+           DARK MODE (auto via prefers-color-scheme)
+        ============================================================ */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --pink-50:  #180A10;
+                --pink-100: #27101B;
+                --pink-200: #3D1828;
+                --pink-300: #5A2438;
+                --pink-400: #F48FB1;
+                --pink-500: #F06292;
+                --pink-600: #F8BBD0;
+                --purple-100: #1C0A22;
+                --purple-400: #BA68C8;
+                --purple-600: #CE93D8;
+                --text-primary: #FFD6EA;
+                --text-secondary: #F0A0C0;
+                --text-muted: #9E6B85;
+                --bg-body: #100810;
+                --bg-card: rgba(28,10,20,0.90);
+                --bg-input: rgba(40,15,28,0.96);
+                --border: rgba(244,143,177,0.18);
+                --shadow-sm: 0 2px 10px rgba(0,0,0,0.45);
+                --shadow-md: 0 6px 22px rgba(0,0,0,0.55);
+                --shadow-lg: 0 14px 40px rgba(0,0,0,0.65);
+            }
+        }
+
+        /* ============================================================
+           BASE
+        ============================================================ */
+        *,*::before,*::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html { scroll-behavior: smooth; }
         body {
-            font-family: 'Quicksand', sans-serif;
-            background-color: var(--soft-pink);
-            color: var(--text-love);
             margin: 0; padding: 0;
-            display: flex; flex-direction: column; align-items: center;
+            font-family: 'Quicksand', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
             min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
+            overflow-x: hidden;
+            transition: background 0.4s var(--ease), color 0.4s var(--ease);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        /* Ambient background glow */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 15% 15%, rgba(244,143,177,0.14) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 60% at 85% 85%, rgba(206,147,216,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 80% 40% at 50% 50%, rgba(249,180,206,0.07) 0%, transparent 70%);
+            pointer-events: none; z-index: 0;
+        }
 
-        /* --- LOGIN / PEDIDA (EL DISEÑO ORIGINAL) --- */
+        /* ============================================================
+           FLOATING PARTICLES
+        ============================================================ */
+        #floaties {
+            position: fixed; inset: 0;
+            pointer-events: none; z-index: 0; overflow: hidden;
+        }
+        .floatie {
+            position: absolute; opacity: 0;
+            animation: floatUp linear infinite;
+            user-select: none;
+        }
+        @keyframes floatUp {
+            0%   { transform: translateY(110vh) rotate(0deg);   opacity: 0; }
+            8%   { opacity: 0.13; }
+            92%  { opacity: 0.13; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* ============================================================
+           KEYFRAMES
+        ============================================================ */
+        @keyframes fadeIn   { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: none; } }
+        @keyframes slideUp  { from { opacity:0; transform: translateY(28px) scale(.96); } to { opacity:1; transform: none; } }
+        @keyframes bounceIn { 0%{transform:scale(.3);opacity:0} 55%{transform:scale(1.06)} 75%{transform:scale(.96)} 100%{transform:scale(1);opacity:1} }
+        @keyframes heartbeat{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+        @keyframes spin     { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes float    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+        @keyframes pulseRing{ 0%{transform:translate(-50%,-50%) scale(1);opacity:.6} 100%{transform:translate(-50%,-50%) scale(1.6);opacity:0} }
+        @keyframes shake    { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+        @keyframes dotPop   { 0%{transform:scale(0.5)} 60%{transform:scale(1.25)} 100%{transform:scale(1)} }
+        @keyframes postIn   { from{opacity:0;transform:translateX(-12px) scale(.97)} to{opacity:1;transform:none} }
+
+        /* ============================================================
+           LOADING SCREEN
+        ============================================================ */
+        #loading-screen {
+            position: fixed; inset: 0; z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--bg-body);
+            transition: opacity 0.4s var(--ease);
+        }
+        #loading-screen.hidden { opacity: 0; pointer-events: none; }
+        .loading-emoji  { font-size: 3rem; animation: heartbeat 1.1s ease-in-out infinite; margin-bottom: 14px; }
+        .loading-text   { color: var(--text-secondary); font-size: .95rem; font-weight: 600; }
+
+        /* ============================================================
+           SHARED CARD / BUTTON STYLES
+        ============================================================ */
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-primary {
+            display: block; width: 100%;
+            background: linear-gradient(135deg, var(--pink-400), var(--pink-500));
+            color: #fff; border: none;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.05rem; font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 0 var(--pink-600), var(--shadow-sm);
+            transition: transform .18s var(--spring), box-shadow .18s var(--ease);
+            position: relative; overflow: hidden;
+        }
+        .btn-primary:hover  { transform: translateY(-2px); box-shadow: 0 6px 0 var(--pink-600), var(--shadow-md); }
+        .btn-primary:active { transform: translateY(1px);  box-shadow: 0 2px 0 var(--pink-600), var(--shadow-sm); }
+        .btn-primary:disabled { opacity: .65; cursor: not-allowed; transform: none; }
+
+        .btn-primary .ripple {
+            position: absolute; border-radius: 50%;
+            background: rgba(255,255,255,.35);
+            transform: scale(0);
+            animation: rippleAnim .55s ease-out;
+            pointer-events: none;
+        }
+        @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
+        /* ============================================================
+           LOGIN SECTION
+        ============================================================ */
         #login-section {
-            display: flex; flex-direction: column; justify-content: center;
-            align-items: center; height: 100vh; text-align: center; padding: 20px;
+            display: none; flex-direction: column;
+            justify-content: center; align-items: center;
+            height: 100vh; padding: 24px;
+            position: relative; z-index: 10;
         }
+        #login-section.visible { display: flex; animation: fadeIn .5s var(--ease); }
 
         .login-card {
-            background: var(--white-cloud);
-            padding: 30px; border-radius: 40px;
-            border: 4px solid var(--sanrio-pink);
-            box-shadow: 0 10px 0px #F8C2D1;
-            max-width: 320px; width: 100%;
+            padding: 42px 36px 36px;
+            max-width: 340px; width: 100%;
+            text-align: center;
         }
 
-        .login-card h1 { font-family: 'Pacifico', cursive; color: var(--sanrio-pink); font-size: 2rem; margin: 10px 0; }
-
-        .btn-si {
-            background: var(--sanrio-pink); color: white; border: none;
-            padding: 15px 40px; border-radius: 50px; font-size: 1.2rem;
-            font-weight: bold; cursor: pointer; margin-top: 20px;
-            box-shadow: 0 4px 0 #D1708F; width: 100%;
+        .login-emoji {
+            font-size: 4rem; display: block;
+            animation: float 3s ease-in-out infinite, heartbeat 2s ease-in-out infinite;
+            margin-bottom: 8px;
         }
+
+        .login-card h1 {
+            font-family: 'Pacifico', cursive;
+            color: var(--pink-400); font-size: 2.2rem;
+            margin: 0 0 10px;
+        }
+
+        .login-card p {
+            color: var(--text-secondary); font-size: .95rem;
+            line-height: 1.55; margin: 0 0 18px;
+        }
+
+        .login-question {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.55rem; color: var(--text-primary);
+            line-height: 1.35; margin: 0 0 28px;
+        }
+
+        .btn-zone {
+            position: relative; height: 56px;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        #btn-si { width: auto; padding: 14px 44px; }
 
         #btn-no {
-            background: #E0E0E0; color: #999; border: none;
-            padding: 10px 20px; border-radius: 50px; cursor: pointer;
-            position: absolute; transition: 0.2s; font-family: inherit; font-weight: bold;
+            position: fixed;
+            background: rgba(220,220,220,.75);
+            color: #aaa; border: none;
+            padding: 10px 20px; border-radius: 50px;
+            cursor: pointer; z-index: 200;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700; font-size: .9rem;
+            backdrop-filter: blur(6px);
+            white-space: nowrap;
+            transition: left .14s ease, top .14s ease;
         }
 
-        /* --- CONTENEDOR PRINCIPAL DE LA APP --- */
+        /* ============================================================
+           PIN SECTION
+        ============================================================ */
+        #pin-section {
+            display: none; flex-direction: column;
+            justify-content: center; align-items: center;
+            height: 100vh; padding: 24px;
+            position: relative; z-index: 10;
+        }
+        #pin-section.visible { display: flex; animation: fadeIn .45s var(--ease); }
+
+        .pin-card {
+            padding: 40px 32px 32px;
+            max-width: 320px; width: 100%;
+            text-align: center;
+        }
+
+        .pin-icon  { font-size: 2.8rem; margin-bottom: 14px; }
+        .pin-card h2 {
+            font-family: 'Pacifico', cursive;
+            color: var(--pink-400); font-size: 1.55rem;
+            margin: 0 0 8px;
+        }
+        .pin-card p { color: var(--text-secondary); font-size: .9rem; margin: 0 0 26px; }
+
+        .pin-dots {
+            display: flex; gap: 18px;
+            justify-content: center; margin-bottom: 30px;
+        }
+        .pin-dot {
+            width: 15px; height: 15px; border-radius: 50%;
+            border: 2px solid var(--pink-400);
+            background: transparent;
+            transition: background .2s var(--ease);
+        }
+        .pin-dot.filled {
+            background: var(--pink-400);
+            animation: dotPop .25s var(--spring);
+        }
+
+        .pin-keypad {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 11px;
+        }
+        .pin-key {
+            background: var(--bg-input);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 16px 10px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.25rem; font-weight: 700;
+            color: var(--text-primary);
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            transition: transform .15s var(--spring), background .15s var(--ease);
+        }
+        .pin-key:active { transform: scale(.9); background: var(--pink-100); }
+        .pin-key.del    { color: var(--pink-400); font-size: 1.1rem; }
+
+        .pin-error {
+            color: #e74c3c; font-size: .85rem;
+            margin-top: 14px; min-height: 20px;
+            transition: opacity .2s;
+        }
+        .pin-error.hidden { opacity: 0; }
+        .pin-card.shake { animation: shake .4s ease; }
+
+        /* ============================================================
+           APP CONTAINER
+        ============================================================ */
         #app-container {
-            display: none; width: 100%; max-width: 450px; padding: 20px 20px 80px 20px;
+            display: none;
+            width: 100%; max-width: 480px;
+            padding: 20px 16px 96px;
+            position: relative; z-index: 10;
+        }
+        #app-container.visible { display: block; animation: fadeIn .45s var(--ease); }
+
+        /* ============================================================
+           HEADER
+        ============================================================ */
+        header { text-align: center; padding: 26px 0 18px; }
+
+        .header-title {
+            font-family: 'Pacifico', cursive;
+            color: var(--pink-400); font-size: 2.5rem;
+            margin: 0 0 10px; line-height: 1.2;
+            text-shadow: 0 2px 10px rgba(244,143,177,.3);
         }
 
-        header { text-align: center; padding: 20px 0; }
-        header h2 { font-family: 'Pacifico', cursive; color: var(--sanrio-pink); font-size: 2.2rem; margin: 0; }
-        #counter { font-size: 0.9rem; font-weight: bold; color: var(--sanrio-pink); margin-top: 5px; display: block; }
-
-        /* --- PESTAÑA: DIARIO (DISEÑO ORIGINAL CON AÑADIDOS) --- */
-        .message-input {
-            background: white; border-radius: 25px; padding: 20px; margin-bottom: 20px;
-            border: 2px solid var(--sanrio-pink);
+        #counter {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--pink-400), var(--purple-400));
+            color: #fff; font-size: .82rem; font-weight: 700;
+            padding: 5px 18px; border-radius: 50px;
+            box-shadow: var(--shadow-sm);
+            letter-spacing: .02em;
         }
 
-        textarea {
-            width: 100%; border: 1px solid #eee; border-radius: 15px;
-            padding: 10px; font-family: inherit; resize: none; margin-bottom: 10px;
+        /* ============================================================
+           DIARY TAB — INPUT CARD
+        ============================================================ */
+        #tab-diary { animation: fadeIn .35s var(--ease); }
+
+        .input-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 20px;
+            margin-bottom: 20px;
         }
 
-        .tools { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .sticker-selector { display: flex; gap: 8px; font-size: 1.3rem; }
-        .sticker { cursor: pointer; opacity: 0.5; transition: 0.2s; }
-        .sticker.active { opacity: 1; transform: scale(1.2); }
-        .file-upload label { color: var(--sanrio-pink); font-weight: bold; cursor: pointer; font-size: 0.9rem; background: var(--soft-pink); padding: 5px 10px; border-radius: 10px;}
-        .file-upload input { display: none; }
+        .input-card textarea {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: .96rem; color: var(--text-primary);
+            resize: none; line-height: 1.65;
+            margin-bottom: 14px;
+            transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
+        }
+        .input-card textarea:focus {
+            outline: none;
+            border-color: var(--pink-400);
+            box-shadow: 0 0 0 3px rgba(244,143,177,.2);
+        }
+        .input-card textarea::placeholder { color: var(--text-muted); }
 
+        .tools {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;
+        }
+
+        .sticker-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+        .sticker {
+            font-size: 1.45rem; cursor: pointer;
+            opacity: .38; padding: 4px;
+            transition: opacity .2s var(--ease), transform .2s var(--spring);
+            border-radius: 8px;
+        }
+        .sticker.active {
+            opacity: 1; transform: scale(1.28);
+            filter: drop-shadow(0 2px 5px rgba(244,143,177,.55));
+        }
+        .sticker:hover:not(.active) { opacity: .7; transform: scale(1.1); }
+
+        .file-upload-label {
+            display: inline-flex; align-items: center; gap: 5px;
+            color: var(--pink-400); font-weight: 700;
+            font-size: .84rem; cursor: pointer;
+            background: var(--pink-100);
+            padding: 7px 14px; border-radius: 50px;
+            border: 1.5px solid var(--border);
+            transition: background .18s var(--ease), border-color .18s var(--ease);
+        }
+        .file-upload-label:hover { background: var(--pink-200); border-color: var(--pink-400); }
+        .file-upload-label input { display: none; }
+
+        /* ============================================================
+           POST CARDS
+        ============================================================ */
         .post {
-            background: white; border-radius: 20px; padding: 15px;
-            margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            border-left: 8px solid var(--sanrio-pink);
+            background: var(--bg-card);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 18px 18px 18px 22px;
+            margin-bottom: 14px;
+            position: relative; overflow: hidden;
+            animation: postIn .4s var(--spring);
+            transition: transform .2s var(--ease), box-shadow .2s var(--ease);
         }
-        .post-header { display: flex; justify-content: space-between; margin-bottom: 5px;}
-        .post-date { font-size: 0.8rem; color: var(--sanrio-pink); font-weight: bold; }
-        .post-img { width: 100%; border-radius: 10px; margin-top: 10px; object-fit: cover; max-height: 250px; }
+        .post::before {
+            content: '';
+            position: absolute; left: 0; top: 0; bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--pink-400), var(--purple-400));
+        }
+        .post:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 
-        /* --- PESTAÑA: REPRODUCTOR --- */
-        #tab-music {
-            display: none; text-align: center; background: white; border-radius: 25px; 
-            padding: 30px 20px; border: 2px solid var(--sanrio-pink); margin-top: 10px;
+        .post-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 9px;
         }
-        
-        .music-img {
-            width: 120px; height: 120px; border-radius: 50%; object-fit: cover;
-            border: 4px solid var(--soft-pink); margin-bottom: 15px;
+        .post-date    { font-size: .78rem; color: var(--text-secondary); font-weight: 700; }
+        .post-sticker { font-size: 1.3rem; }
+        .post-text    {
+            line-height: 1.7; color: var(--text-primary);
+            font-size: .95rem; white-space: pre-wrap; word-break: break-word;
         }
-        .music-title { font-size: 1.2rem; color: var(--text-love); font-weight: bold; margin-bottom: 20px;}
-        
-        audio { width: 100%; border-radius: 10px; outline: none; }
-        audio::-webkit-media-controls-panel { background-color: var(--soft-pink); }
+        .post-img {
+            width: 100%; border-radius: var(--radius-md);
+            margin-top: 12px; object-fit: cover;
+            max-height: 290px; box-shadow: var(--shadow-sm);
+            display: block;
+        }
+        .posts-empty {
+            text-align: center; color: var(--text-muted);
+            padding: 48px 20px; font-size: .95rem; line-height: 1.8;
+        }
 
-        /* --- NAVEGACIÓN INFERIOR --- */
+        /* ============================================================
+           MUSIC TAB
+        ============================================================ */
+        #tab-music { display: none; animation: fadeIn .35s var(--ease); }
+
+        .music-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+        }
+
+        /* CD Player */
+        .cd-player-area { text-align: center; padding: 36px 24px 24px; }
+
+        .cd-wrapper {
+            position: relative; width: 164px; height: 164px;
+            margin: 0 auto 22px;
+        }
+
+        .cd-disc {
+            width: 164px; height: 164px; border-radius: 50%;
+            background:
+                radial-gradient(circle at 32% 28%, rgba(255,255,255,.45) 0%, transparent 28%),
+                conic-gradient(
+                    #FF6B9D 0deg, #CE93D8 50deg, #90CAF9 110deg,
+                    #80DEEA 160deg, #A5D6A7 210deg, #FFF176 260deg,
+                    #FFAB91 310deg, #FF6B9D 360deg
+                );
+            box-shadow: 0 10px 34px rgba(0,0,0,.40), inset 0 0 24px rgba(0,0,0,.28);
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+        .cd-disc.playing { animation: spin 3.2s linear infinite; }
+
+        .cd-hole {
+            width: 46px; height: 46px; border-radius: 50%;
+            background: var(--bg-card);
+            border: 3.5px solid rgba(255,255,255,.6);
+            box-shadow: 0 2px 8px rgba(0,0,0,.35), inset 0 1px 3px rgba(0,0,0,.25);
+            position: relative; z-index: 1;
+        }
+        .cd-hole::after {
+            content: '';
+            position: absolute; inset: 0; margin: auto;
+            width: 10px; height: 10px; border-radius: 50%;
+            background: rgba(200,100,150,.5);
+        }
+
+        .pulse-ring {
+            position: absolute; top: 50%; left: 50%;
+            width: 164px; height: 164px; border-radius: 50%;
+            border: 2px solid var(--pink-400);
+            opacity: 0; pointer-events: none;
+        }
+        .cd-disc.playing ~ .pulse-ring { animation: pulseRing 2.1s ease-out infinite; }
+
+        /* Now-playing info */
+        .now-playing { margin-bottom: 22px; }
+        .np-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.4rem; color: var(--text-primary);
+            font-weight: 700; margin-bottom: 3px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .np-subtitle { font-size: .82rem; color: var(--text-secondary); }
+
+        /* Progress */
+        .progress-wrap { margin-bottom: 18px; }
+        .progress-bar {
+            width: 100%; height: 5px;
+            background: var(--border);
+            border-radius: 5px; cursor: pointer;
+            margin-bottom: 6px; position: relative;
+        }
+        .progress-fill {
+            height: 100%; border-radius: 5px;
+            background: linear-gradient(to right, var(--pink-400), var(--purple-400));
+            width: 0%; position: relative;
+            transition: width .1s linear;
+        }
+        .progress-fill::after {
+            content: ''; position: absolute;
+            right: -5px; top: -4px;
+            width: 13px; height: 13px; border-radius: 50%;
+            background: var(--pink-400);
+            border: 2.5px solid var(--bg-card);
+            box-shadow: var(--shadow-sm);
+            transition: opacity .2s;
+        }
+        .progress-fill.zero::after { opacity: 0; }
+
+        .time-row { display: flex; justify-content: space-between; font-size: .73rem; color: var(--text-muted); }
+
+        /* Controls */
+        .controls { display: flex; align-items: center; justify-content: center; gap: 18px; }
+        .ctrl-btn {
+            background: none; border: none; cursor: pointer;
+            color: var(--text-secondary); padding: 10px; border-radius: 50%;
+            font-size: 1.25rem;
+            transition: color .18s var(--ease), transform .18s var(--spring);
+        }
+        .ctrl-btn:hover { color: var(--pink-400); transform: scale(1.12); }
+
+        .ctrl-btn.main {
+            width: 58px; height: 58px; font-size: 1.4rem;
+            background: linear-gradient(135deg, var(--pink-400), var(--pink-500));
+            color: #fff; box-shadow: var(--shadow-md);
+        }
+        .ctrl-btn.main:hover { transform: scale(1.08); box-shadow: var(--shadow-lg); }
+        .ctrl-btn.main:active { transform: scale(.95); }
+
+        /* Playlist */
+        .playlist-area {
+            border-top: 1.5px solid var(--border);
+            padding: 22px 20px 18px;
+        }
+        .playlist-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 16px;
+        }
+        .playlist-header h3 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.15rem; color: var(--text-primary); margin: 0;
+        }
+
+        .btn-add-song {
+            background: var(--pink-100); color: var(--pink-500);
+            border: 1.5px solid var(--border);
+            padding: 6px 14px; border-radius: 50px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: .8rem; font-weight: 700; cursor: pointer;
+            transition: background .18s var(--ease), border-color .18s var(--ease);
+        }
+        .btn-add-song:hover { background: var(--pink-200); border-color: var(--pink-400); }
+        #music-file-input { display: none; }
+
+        .playlist-empty { text-align: center; color: var(--text-muted); font-size: .9rem; padding: 18px; line-height: 1.7; }
+
+        .track {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 12px; border-radius: var(--radius-md);
+            cursor: pointer; margin-bottom: 5px;
+            transition: background .15s var(--ease);
+        }
+        .track:hover { background: var(--pink-100); }
+        .track.active {
+            background: linear-gradient(135deg, rgba(244,143,177,.18), rgba(206,147,216,.13));
+            border: 1.5px solid var(--border);
+        }
+
+        .track-num {
+            font-size: .78rem; color: var(--text-muted);
+            width: 22px; text-align: center; flex-shrink: 0;
+        }
+        .track.active .track-num { color: var(--pink-400); font-size: .95rem; }
+
+        .track-meta { flex: 1; min-width: 0; }
+        .track-name {
+            font-size: .9rem; font-weight: 600; color: var(--text-primary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .track.active .track-name { color: var(--pink-400); }
+        .track-dur { font-size: .74rem; color: var(--text-muted); }
+
+        .track-del {
+            background: none; border: none; cursor: pointer;
+            color: var(--text-muted); font-size: .9rem;
+            padding: 5px; border-radius: 50%;
+            opacity: 0; transition: opacity .15s var(--ease), color .15s var(--ease);
+        }
+        .track:hover .track-del { opacity: 1; }
+        .track-del:hover { color: #e74c3c; }
+
+        /* ============================================================
+           BOTTOM NAV
+        ============================================================ */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%;
-            background: white; display: flex; justify-content: space-around;
-            padding: 15px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            border-top: 2px solid var(--soft-pink);
+            background: var(--bg-card);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border-top: 1.5px solid var(--border);
+            box-shadow: 0 -3px 18px rgba(0,0,0,.08);
+            display: flex; justify-content: space-around;
+            padding: 10px 0 max(10px, env(safe-area-inset-bottom));
+            z-index: 100;
         }
 
         .nav-item {
-            text-align: center; color: #DDB8C5; font-size: 1.5rem;
-            cursor: pointer; transition: 0.3s; flex: 1;
+            flex: 1; text-align: center; padding: 5px;
+            cursor: pointer; color: var(--text-muted);
+            font-size: 1.5rem;
+            transition: color .22s var(--ease), transform .22s var(--spring);
+            border-radius: var(--radius-sm);
         }
-        .nav-item.active { color: var(--sanrio-pink); transform: translateY(-2px);}
-        .nav-label { font-size: 0.75rem; font-weight: bold; display: block; font-family: 'Quicksand', sans-serif;}
+        .nav-item:hover  { color: var(--pink-300); }
+        .nav-item.active { color: var(--pink-400); transform: translateY(-3px); }
+        .nav-label {
+            font-size: .7rem; font-weight: 700;
+            display: block; margin-top: 2px;
+        }
 
+        /* ============================================================
+           TOAST
+        ============================================================ */
+        #toast {
+            position: fixed; bottom: 90px; left: 50%;
+            transform: translateX(-50%) translateY(12px);
+            background: var(--text-primary); color: var(--bg-body);
+            padding: 10px 24px; border-radius: 50px;
+            font-size: .84rem; font-weight: 700;
+            opacity: 0; pointer-events: none; z-index: 500;
+            white-space: nowrap; box-shadow: var(--shadow-md);
+            transition: opacity .28s var(--ease), transform .28s var(--spring);
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ============================================================
+           PRINT STYLES (secret: Ctrl+Shift+P)
+        ============================================================ */
+        #print-template { display: none; }
+
+        @media print {
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+            body > *:not(#print-template) { display: none !important; }
+
+            #print-template {
+                display: block !important;
+                font-family: Georgia, 'Times New Roman', serif;
+                max-width: 680px; margin: 0 auto;
+                padding: 40px 48px; color: #333;
+            }
+
+            .pt-header {
+                text-align: center;
+                border-bottom: 3px solid #F48FB1;
+                padding-bottom: 22px; margin-bottom: 32px;
+            }
+            .pt-header h1 {
+                font-family: Georgia, serif;
+                font-size: 2.2rem; color: #F48FB1; margin: 0 0 6px;
+            }
+            .pt-header p { color: #9E6B85; font-size: .9rem; margin: 0; font-style: italic; }
+
+            .pt-post {
+                page-break-inside: avoid;
+                margin-bottom: 28px;
+                padding: 20px 22px;
+                border: 1px solid #FFB3CC;
+                border-left: 5px solid #F48FB1;
+                border-radius: 10px;
+                background: #FFF5F8 !important;
+            }
+            .pt-post-header {
+                display: flex; justify-content: space-between;
+                align-items: center; margin-bottom: 10px;
+            }
+            .pt-post-date   { font-size: .82rem; color: #F48FB1; font-weight: bold; }
+            .pt-post-sticker{ font-size: 1.4rem; }
+            .pt-post-text   { line-height: 1.9; font-size: .97rem; white-space: pre-wrap; word-break: break-word; }
+            .pt-post img    { max-width: 100%; border-radius: 8px; margin-top: 12px; }
+
+            .pt-footer {
+                text-align: center; margin-top: 40px;
+                padding-top: 20px; border-top: 2px solid #FFB3CC;
+                color: #9E6B85; font-size: .88rem; font-style: italic;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div id="login-section">
-        <div class="login-card">
-            <div style="font-size: 3rem;">🎀</div>
-            <h1>¡Hola!</h1>
-            <p>Para acceder a nuestro rincón secreto, responde:</p>
-            <h2 style="font-size: 1.4rem; margin: 20px 0;">¿Quieres salir conmigo?</h2>
-            
-            <div style="position: relative; height: 60px; display: flex; justify-content: center; align-items: center;">
-                <button class="btn-si" style="width: auto;" onclick="aceptar()">¡SÍ! ✨</button>
-                <button id="btn-no" onmouseover="huir()" ontouchstart="huir()">No</button>
+<!-- Floaties container -->
+<div id="floaties"></div>
+
+<!-- Loading -->
+<div id="loading-screen">
+    <div class="loading-emoji">🎀</div>
+    <div class="loading-text">Cargando tu rinconcito…</div>
+</div>
+
+<!-- Login -->
+<div id="login-section">
+    <div class="glass-card login-card">
+        <span class="login-emoji">🎀</span>
+        <h1>¡Hola!</h1>
+        <p>Para entrar a nuestro rincón secreto, responde:</p>
+        <div class="login-question">¿Quieres salir conmigo? 💕</div>
+        <div class="btn-zone">
+            <button class="btn-primary" id="btn-si" onclick="aceptar(this)">¡SÍ! ✨</button>
+        </div>
+    </div>
+    <button id="btn-no" onmouseover="huir()" ontouchstart="huir()">No</button>
+</div>
+
+<!-- PIN -->
+<div id="pin-section">
+    <div class="glass-card pin-card" id="pin-card">
+        <div class="pin-icon">🔐</div>
+        <h2 id="pin-title">Crea tu PIN</h2>
+        <p id="pin-desc">Elige 4 números para proteger tu diario</p>
+
+        <div class="pin-dots">
+            <div class="pin-dot" id="d0"></div>
+            <div class="pin-dot" id="d1"></div>
+            <div class="pin-dot" id="d2"></div>
+            <div class="pin-dot" id="d3"></div>
+        </div>
+
+        <div class="pin-keypad">
+            <button class="pin-key" onclick="pinKey('1')">1</button>
+            <button class="pin-key" onclick="pinKey('2')">2</button>
+            <button class="pin-key" onclick="pinKey('3')">3</button>
+            <button class="pin-key" onclick="pinKey('4')">4</button>
+            <button class="pin-key" onclick="pinKey('5')">5</button>
+            <button class="pin-key" onclick="pinKey('6')">6</button>
+            <button class="pin-key" onclick="pinKey('7')">7</button>
+            <button class="pin-key" onclick="pinKey('8')">8</button>
+            <button class="pin-key" onclick="pinKey('9')">9</button>
+            <button class="pin-key" onclick="pinKey('0')">0</button>
+            <button class="pin-key del" onclick="pinBack()">⌫</button>
+        </div>
+
+        <div class="pin-error hidden" id="pin-error">PIN incorrecto. Inténtalo de nuevo 💕</div>
+    </div>
+</div>
+
+<!-- App -->
+<div id="app-container">
+    <header>
+        <div class="header-title">My Sweet Diary</div>
+        <span id="counter"></span>
+    </header>
+
+    <!-- Diary Tab -->
+    <div id="tab-diary">
+        <div class="input-card">
+            <textarea id="msg-text" rows="4" placeholder="Escribe un nuevo recuerdo… 🌸"></textarea>
+
+            <div class="tools">
+                <div class="sticker-row" id="stickers">
+                    <span class="sticker active" onclick="pickSticker(this)">🌸</span>
+                    <span class="sticker" onclick="pickSticker(this)">🎀</span>
+                    <span class="sticker" onclick="pickSticker(this)">🍓</span>
+                    <span class="sticker" onclick="pickSticker(this)">✨</span>
+                    <span class="sticker" onclick="pickSticker(this)">💕</span>
+                    <span class="sticker" onclick="pickSticker(this)">🌙</span>
+                </div>
+                <label class="file-upload-label">
+                    📷 Foto
+                    <input type="file" id="img-upload" accept="image/*" onchange="previewPhoto(this)">
+                </label>
+            </div>
+
+            <div id="photo-preview-wrap" style="display:none; margin-bottom:12px;">
+                <img id="photo-preview" style="width:100%;border-radius:14px;max-height:180px;object-fit:cover;">
+                <button onclick="clearPhoto()" style="margin-top:6px;background:none;border:none;color:var(--pink-400);cursor:pointer;font-weight:700;font-size:.85rem;">✕ Quitar foto</button>
+            </div>
+
+            <button class="btn-primary" id="post-btn" onclick="addPost(this)">Publicar 💌</button>
+        </div>
+
+        <div id="posts-container"></div>
+    </div>
+
+    <!-- Music Tab -->
+    <div id="tab-music">
+        <div class="music-card">
+            <div class="cd-player-area">
+                <div class="cd-wrapper">
+                    <div class="cd-disc" id="cd-disc">
+                        <div class="cd-hole"></div>
+                    </div>
+                    <div class="pulse-ring" id="pulse-ring"></div>
+                </div>
+
+                <div class="now-playing">
+                    <div class="np-title" id="np-title">Tu Mix Especial ☁️</div>
+                    <div class="np-subtitle" id="np-sub">Dale al play y acuérdate de mí ✨</div>
+                </div>
+
+                <div class="progress-wrap">
+                    <div class="progress-bar" id="progress-bar" onclick="seekTo(event)">
+                        <div class="progress-fill zero" id="progress-fill"></div>
+                    </div>
+                    <div class="time-row">
+                        <span id="t-cur">0:00</span>
+                        <span id="t-tot">0:00</span>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="ctrl-btn" onclick="prevTrack()" title="Anterior">⏮</button>
+                    <button class="ctrl-btn main" id="play-btn" onclick="togglePlay()">▶</button>
+                    <button class="ctrl-btn" onclick="nextTrack()" title="Siguiente">⏭</button>
+                </div>
+            </div>
+
+            <div class="playlist-area">
+                <div class="playlist-header">
+                    <h3>💿 Tu Mix Especial</h3>
+                    <button class="btn-add-song" onclick="document.getElementById('music-file-input').click()">
+                        + Añadir canciones
+                    </button>
+                    <input type="file" id="music-file-input" accept="audio/*" multiple>
+                </div>
+                <div id="playlist"></div>
             </div>
         </div>
     </div>
 
-    <div id="app-container">
-        <header>
-            <h2>My Sweet Diary</h2>
-            <span id="counter"></span>
-        </header>
-
-        <div id="tab-diary">
-            <div class="message-input">
-                <textarea id="msg-text" rows="3" placeholder="Escribe un nuevo recuerdo..."></textarea>
-                
-                <div class="tools">
-                    <div class="sticker-selector" id="stickers">
-                        <span class="sticker active" onclick="selectSticker(this)">🌸</span>
-                        <span class="sticker" onclick="selectSticker(this)">🎀</span>
-                        <span class="sticker" onclick="selectSticker(this)">🍓</span>
-                        <span class="sticker" onclick="selectSticker(this)">✨</span>
-                    </div>
-                    <div class="file-upload">
-                        <label for="img-upload">📷 Añadir Foto</label>
-                        <input type="file" id="img-upload" accept="image/*">
-                    </div>
-                </div>
-                
-                <button class="btn-si" style="margin-top: 0; padding: 10px;" onclick="addPost()">Publicar 💌</button>
-            </div>
-            <div id="posts-container"></div>
+    <!-- Bottom nav -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" id="nav-diary" onclick="switchTab('diary')">
+            📖 <span class="nav-label">Diario</span>
         </div>
-
-        <div id="tab-music">
-            <img src="https://via.placeholder.com/150/FFDEEB/7D5A6A?text=Foto" class="music-img" alt="Nosotros">
-            <div class="music-title">Para cuando me eches de menos ☁️</div>
-            
-            <audio controls>
-                <source src="cancion.mp3" type="audio/mpeg">
-                Tu navegador no soporta el audio.
-            </audio>
-            
-            <p style="margin-top: 20px; font-size: 0.9rem;">Dale al play y acuérdate de mí. ✨</p>
+        <div class="nav-item" id="nav-music" onclick="switchTab('music')">
+            💿 <span class="nav-label">Música</span>
         </div>
+    </nav>
+</div>
 
-        <nav class="bottom-nav">
-            <div class="nav-item active" id="nav-diary" onclick="switchTab('diary')">
-                📖 <span class="nav-label">Diario</span>
-            </div>
-            <div class="nav-item" id="nav-music" onclick="switchTab('music')">
-                🎵 <span class="nav-label">Canción</span>
-            </div>
-        </nav>
+<!-- Print template (hidden; shown only via @media print) -->
+<div id="print-template">
+    <div class="pt-header">
+        <h1>🎀 My Sweet Diary</h1>
+        <p id="pt-date"></p>
     </div>
+    <div id="pt-posts"></div>
+    <div class="pt-footer">💕 Este diario es solo tuyo, escrito con amor.</div>
+</div>
 
-    <script>
-        let currentSticker = '🌸';
+<!-- Toast -->
+<div id="toast"></div>
 
-        if(localStorage.getItem('isCouple') === 'true') {
-            iniciarApp();
-        }
+<script>
+'use strict';
+// ================================================================
+//  CONSTANTS
+// ================================================================
+const DB_NAME    = 'SweetDiaryDB';
+const DB_VERSION = 1;
 
-        function huir() {
-            const b = document.getElementById('btn-no');
-            const x = Math.random() * (window.innerWidth - 100);
-            const y = Math.random() * (window.innerHeight - 50);
-            b.style.left = x + 'px';
-            b.style.top = y + 'px';
-        }
+// ================================================================
+//  STATE
+// ================================================================
+let db          = null;
+let cryptoKey   = null;          // AES-GCM key (derived from PIN)
+let pinMode     = 'setup';       // 'setup' | 'confirm' | 'verify'
+let pinBuf      = '';
+let pinFirst    = '';
+let needsMigration = false;
+let migrationPayload = null;
+let currentSticker = '🌸';
+let photoDataUrl = null;
 
-        function aceptar() {
-            localStorage.setItem('isCouple', 'true');
-            localStorage.setItem('fecha_novios', new Date().toISOString());
-            iniciarApp();
-        }
+// Music
+let audioEl    = new Audio();
+let playlist   = [];
+let trackIndex = -1;
+let playing    = false;
 
-        function iniciarApp() {
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('app-container').style.display = 'block';
-            calcularDias();
-            loadPosts();
-        }
+// ================================================================
+//  FLOATIES
+// ================================================================
+;(function spawnFloaties() {
+    const cont = document.getElementById('floaties');
+    const syms = ['🌸','✨','💕','🎀','⭐','🌙','🍓','🌟','💫'];
+    for (let i = 0; i < 14; i++) {
+        const el = document.createElement('div');
+        el.className = 'floatie';
+        el.textContent = syms[i % syms.length];
+        el.style.cssText = [
+            `left:${Math.random()*100}%`,
+            `font-size:${.7+Math.random()*.9}rem`,
+            `animation-duration:${16+Math.random()*22}s`,
+            `animation-delay:${Math.random()*24}s`
+        ].join(';');
+        cont.appendChild(el);
+    }
+})();
 
-        function switchTab(tab) {
-            document.getElementById('nav-diary').classList.remove('active');
-            document.getElementById('nav-music').classList.remove('active');
-            document.getElementById(`nav-${tab}`).classList.add('active');
+// ================================================================
+//  RIPPLE EFFECT
+// ================================================================
+document.addEventListener('click', e => {
+    const btn = e.target.closest('.btn-primary');
+    if (!btn) return;
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+    btn.appendChild(r);
+    r.addEventListener('animationend', () => r.remove());
+});
 
-            if(tab === 'diary') {
-                document.getElementById('tab-diary').style.display = 'block';
-                document.getElementById('tab-music').style.display = 'none';
-            } else {
-                document.getElementById('tab-diary').style.display = 'none';
-                document.getElementById('tab-music').style.display = 'block';
+// ================================================================
+//  INDEXEDDB
+// ================================================================
+function openDB() {
+    return new Promise((res, rej) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = ev => {
+            const d = ev.target.result;
+            if (!d.objectStoreNames.contains('settings'))
+                d.createObjectStore('settings', { keyPath: 'k' });
+            if (!d.objectStoreNames.contains('posts')) {
+                const ps = d.createObjectStore('posts', { keyPath: 'id', autoIncrement: true });
+                ps.createIndex('ts', 'ts');
             }
-        }
-
-        function calcularDias() {
-            const fechaString = localStorage.getItem('fecha_novios');
-            if (fechaString) {
-                const fechaInicio = new Date(fechaString);
-                const hoy = new Date();
-                const diferencia = Math.floor((hoy - fechaInicio) / (1000 * 60 * 60 * 24));
-                document.getElementById('counter').innerText = `Día ${diferencia + 1} juntos`;
+            if (!d.objectStoreNames.contains('music')) {
+                const ms = d.createObjectStore('music', { keyPath: 'id', autoIncrement: true });
+                ms.createIndex('ord', 'ord');
             }
+        };
+        req.onsuccess = ev => res(ev.target.result);
+        req.onerror   = ()  => rej(req.error);
+    });
+}
+
+const txRO = store => db.transaction(store, 'readonly').objectStore(store);
+const txRW = store => db.transaction(store, 'readwrite').objectStore(store);
+
+function dbGet(store, key) {
+    return new Promise((res, rej) => {
+        const r = txRO(store).get(key);
+        r.onsuccess = () => res(r.result);
+        r.onerror   = () => rej(r.error);
+    });
+}
+
+function dbPut(store, val) {
+    return new Promise((res, rej) => {
+        const r = txRW(store).put(val);
+        r.onsuccess = () => res(r.result);
+        r.onerror   = () => rej(r.error);
+    });
+}
+
+function dbDelete(store, key) {
+    return new Promise((res, rej) => {
+        const r = txRW(store).delete(key);
+        r.onsuccess = () => res();
+        r.onerror   = () => rej(r.error);
+    });
+}
+
+function dbAll(store) {
+    return new Promise((res, rej) => {
+        const r = txRO(store).getAll();
+        r.onsuccess = () => res(r.result);
+        r.onerror   = () => rej(r.error);
+    });
+}
+
+// ================================================================
+//  ENCRYPTION  (AES-256-GCM via SubtleCrypto)
+//  Encrypted strings are prefixed with "ENC:" to distinguish them
+//  from plaintext (important for migrated old entries).
+// ================================================================
+const ENC_PREFIX = 'ENC:';
+
+async function deriveKey(pin, salt) {
+    const raw = await crypto.subtle.importKey(
+        'raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt, iterations: 120000, hash: 'SHA-256' },
+        raw,
+        { name: 'AES-GCM', length: 256 },
+        false, ['encrypt', 'decrypt']
+    );
+}
+
+async function encryptText(plain) {
+    if (!cryptoKey || !plain) return plain;
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        cryptoKey,
+        new TextEncoder().encode(plain)
+    );
+    const buf = new Uint8Array(12 + ct.byteLength);
+    buf.set(iv); buf.set(new Uint8Array(ct), 12);
+    return ENC_PREFIX + btoa(String.fromCharCode(...buf));
+}
+
+async function decryptText(cipher) {
+    if (!cryptoKey || !cipher) return cipher;
+    if (!cipher.startsWith(ENC_PREFIX)) return cipher; // legacy plaintext
+    try {
+        const buf  = new Uint8Array(atob(cipher.slice(ENC_PREFIX.length)).split('').map(c => c.charCodeAt(0)));
+        const dec  = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: buf.slice(0,12) }, cryptoKey, buf.slice(12));
+        return new TextDecoder().decode(dec);
+    } catch {
+        return '[entrada cifrada]';
+    }
+}
+
+async function savePinSetup(pin) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    cryptoKey  = await deriveKey(pin, salt);
+    const token = await encryptText('DIARY_OK_2025');
+    await dbPut('settings', { k: 'pin_salt',  v: btoa(String.fromCharCode(...salt)) });
+    await dbPut('settings', { k: 'pin_token', v: token });
+}
+
+async function verifyPinAttempt(pin) {
+    const saltRec  = await dbGet('settings', 'pin_salt');
+    const tokenRec = await dbGet('settings', 'pin_token');
+    if (!saltRec || !tokenRec) return false;
+    const salt  = new Uint8Array(atob(saltRec.v).split('').map(c => c.charCodeAt(0)));
+    const testKey = await deriveKey(pin, salt);
+    const prev  = cryptoKey;
+    cryptoKey   = testKey;
+    const dec   = await decryptText(tokenRec.v);
+    if (dec === 'DIARY_OK_2025') return true;
+    cryptoKey   = prev;
+    return false;
+}
+
+// ================================================================
+//  LOCALSTORAGE → INDEXEDDB MIGRATION
+// ================================================================
+async function sniffLocalStorage() {
+    const isCouple  = localStorage.getItem('isCouple');
+    const fecha     = localStorage.getItem('fecha_novios');
+    const postsRaw  = localStorage.getItem('posts');
+    if (isCouple || fecha || postsRaw) {
+        migrationPayload = {
+            isCouple, fecha,
+            posts: postsRaw ? JSON.parse(postsRaw) : []
+        };
+        needsMigration = true;
+    }
+}
+
+async function performMigration() {
+    if (!migrationPayload) return;
+    const { isCouple, fecha, posts } = migrationPayload;
+
+    if (isCouple) await dbPut('settings', { k: 'isCouple', v: isCouple });
+    if (fecha)    await dbPut('settings', { k: 'fecha',    v: fecha    });
+
+    for (let i = posts.length - 1; i >= 0; i--) {
+        const p = posts[i];
+        const enc = await encryptText(p.text || '');
+        await dbPut('posts', {
+            text: enc,
+            sticker: p.sticker || '🌸',
+            date: p.date || new Date().toLocaleDateString('es-ES'),
+            image: p.image || null,
+            ts: Date.now() - i * 1000
+        });
+    }
+
+    // Wipe localStorage cleanly
+    localStorage.removeItem('isCouple');
+    localStorage.removeItem('fecha_novios');
+    localStorage.removeItem('posts');
+    needsMigration   = false;
+    migrationPayload = null;
+}
+
+// ================================================================
+//  BOOT
+// ================================================================
+async function boot() {
+    db = await openDB();
+    await sniffLocalStorage();
+
+    // Determine login state (IndexedDB first, then migration payload)
+    const coupleRec = await dbGet('settings', 'isCouple');
+    const isCouple  = coupleRec
+        ? coupleRec.v === 'true'
+        : (needsMigration && migrationPayload.isCouple === 'true');
+
+    // Fade out loading screen
+    const ls = document.getElementById('loading-screen');
+    ls.classList.add('hidden');
+    setTimeout(() => ls.style.display = 'none', 420);
+
+    if (!isCouple) {
+        showLogin();
+    } else {
+        const pinSalt = await dbGet('settings', 'pin_salt');
+        pinSalt ? showPinVerify() : showPinSetup();
+    }
+}
+
+// ================================================================
+//  LOGIN
+// ================================================================
+function showLogin() {
+    const ls = document.getElementById('login-section');
+    ls.classList.add('visible');
+    // Position "No" button near the "Sí" button after render
+    requestAnimationFrame(() => {
+        const si = document.getElementById('btn-si');
+        const r  = si.getBoundingClientRect();
+        const no = document.getElementById('btn-no');
+        no.style.left = (r.left - no.offsetWidth - 12) + 'px';
+        no.style.top  = (r.top + 8) + 'px';
+    });
+}
+
+function huir() {
+    const no = document.getElementById('btn-no');
+    const w  = no.offsetWidth  || 70;
+    const h  = no.offsetHeight || 38;
+    no.style.left = Math.max(8, Math.random() * (window.innerWidth  - w - 16)) + 'px';
+    no.style.top  = Math.max(8, Math.random() * (window.innerHeight - h - 16)) + 'px';
+}
+
+async function aceptar(btn) {
+    btn.textContent = '✨';
+    await dbPut('settings', { k: 'isCouple', v: 'true' });
+    await dbPut('settings', { k: 'fecha',    v: new Date().toISOString() });
+    document.getElementById('login-section').classList.remove('visible');
+    showPinSetup();
+}
+
+// ================================================================
+//  PIN SCREEN
+// ================================================================
+function showPinSetup() {
+    setPinUI('Crea tu PIN secreto', 'Elige 4 números para proteger tu diario 🔐');
+    pinMode = 'setup'; pinBuf = ''; pinFirst = '';
+    refreshDots();
+    document.getElementById('pin-section').classList.add('visible');
+}
+
+function showPinVerify() {
+    setPinUI('¡Hola de nuevo! 🌸', 'Ingresa tu PIN para acceder 🔑');
+    pinMode = 'verify'; pinBuf = '';
+    refreshDots();
+    document.getElementById('pin-section').classList.add('visible');
+}
+
+function setPinUI(title, desc) {
+    document.getElementById('pin-title').textContent = title;
+    document.getElementById('pin-desc').textContent  = desc;
+    hidePinError();
+}
+
+function refreshDots() {
+    for (let i = 0; i < 4; i++) {
+        document.getElementById('d' + i).classList.toggle('filled', i < pinBuf.length);
+    }
+}
+
+function showPinError(msg) {
+    const el = document.getElementById('pin-error');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+    const card = document.getElementById('pin-card');
+    card.classList.remove('shake');
+    void card.offsetWidth; // reflow
+    card.classList.add('shake');
+    setTimeout(() => card.classList.remove('shake'), 450);
+}
+
+function hidePinError() {
+    document.getElementById('pin-error').classList.add('hidden');
+}
+
+async function pinKey(d) {
+    if (pinBuf.length >= 4) return;
+    pinBuf += d;
+    refreshDots();
+    hidePinError();
+    if (pinBuf.length === 4) await handlePin(pinBuf);
+}
+
+function pinBack() {
+    if (pinBuf.length) { pinBuf = pinBuf.slice(0, -1); refreshDots(); }
+}
+
+async function handlePin(pin) {
+    if (pinMode === 'setup') {
+        pinFirst = pin; pinBuf = ''; pinMode = 'confirm';
+        refreshDots();
+        setPinUI('Confirma tu PIN ✨', 'Repite los 4 números');
+    } else if (pinMode === 'confirm') {
+        if (pin === pinFirst) {
+            await savePinSetup(pin);
+            await afterPinOk();
+        } else {
+            pinBuf = ''; pinFirst = ''; pinMode = 'setup';
+            refreshDots();
+            showPinError('Los PINs no coinciden. Intenta de nuevo 💕');
+            setTimeout(() => setPinUI('Crea tu PIN secreto', 'Elige 4 números para proteger tu diario 🔐'), 1600);
         }
-
-        function selectSticker(element) {
-            document.querySelectorAll('.sticker').forEach(s => s.classList.remove('active'));
-            element.classList.add('active');
-            currentSticker = element.innerText;
+    } else { // verify
+        const ok = await verifyPinAttempt(pin);
+        if (ok) {
+            await afterPinOk();
+        } else {
+            pinBuf = ''; refreshDots();
+            showPinError('PIN incorrecto. Inténtalo de nuevo 💕');
         }
+    }
+}
 
-        function addPost() {
-            const text = document.getElementById('msg-text').value;
-            const fileInput = document.getElementById('img-upload');
-            const file = fileInput.files[0];
+async function afterPinOk() {
+    document.getElementById('pin-section').classList.remove('visible');
+    if (needsMigration) {
+        showToast('Migrando tus recuerdos… 💕');
+        await performMigration();
+    }
+    await launchApp();
+}
 
-            if (!text && !file) return;
+// ================================================================
+//  KEYBOARD: PIN input + print shortcut
+// ================================================================
+document.addEventListener('keydown', async e => {
+    // Print shortcut (Ctrl+Shift+P)
+    if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+        e.preventDefault();
+        await doPrint();
+        return;
+    }
+    // PIN keyboard
+    if (document.getElementById('pin-section').classList.contains('visible')) {
+        if (e.key >= '0' && e.key <= '9') { await pinKey(e.key); }
+        else if (e.key === 'Backspace')     { pinBack(); }
+    }
+});
 
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) { guardarDatos(text, e.target.result); };
-                reader.readAsDataURL(file);
-            } else {
-                guardarDatos(text, null);
-            }
-        }
+// ================================================================
+//  MAIN APP
+// ================================================================
+async function launchApp() {
+    document.getElementById('app-container').classList.add('visible');
+    await updateCounter();
+    await renderPosts();
+    await loadPlaylist();
+}
 
-        function guardarDatos(text, imagenBase64) {
-            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-            posts.unshift({ 
-                text: text, 
-                sticker: currentSticker,
-                date: new Date().toLocaleDateString(),
-                image: imagenBase64
-            });
-            localStorage.setItem('posts', JSON.stringify(posts));
-            document.getElementById('msg-text').value = '';
-            document.getElementById('img-upload').value = '';
-            loadPosts();
-        }
+async function updateCounter() {
+    const rec = await dbGet('settings', 'fecha');
+    if (!rec) return;
+    const diff = Math.floor((Date.now() - new Date(rec.v)) / 86400000);
+    document.getElementById('counter').textContent = `Día ${diff + 1} juntos 💕`;
+}
 
-        function loadPosts() {
-            const container = document.getElementById('posts-container');
-            const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-            container.innerHTML = posts.map(p => `
-                <div class="post">
-                    <div class="post-header">
-                        <span class="post-date">${p.date}</span>
-                        <span>${p.sticker}</span>
-                    </div>
-                    <div>${p.text}</div>
-                    ${p.image ? `<img src="${p.image}" class="post-img">` : ''}
-                </div>
-            `).join('');
-        }
-    </script>
+function switchTab(tab) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('nav-' + tab).classList.add('active');
+    document.getElementById('tab-diary').style.display  = tab === 'diary' ? 'block' : 'none';
+    document.getElementById('tab-music').style.display  = tab === 'music' ? 'block' : 'none';
+}
+
+// ================================================================
+//  DIARY
+// ================================================================
+function pickSticker(el) {
+    document.querySelectorAll('.sticker').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    currentSticker = el.textContent;
+}
+
+function previewPhoto(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        photoDataUrl = e.target.result;
+        document.getElementById('photo-preview').src = e.target.result;
+        document.getElementById('photo-preview-wrap').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearPhoto() {
+    photoDataUrl = null;
+    document.getElementById('photo-preview-wrap').style.display = 'none';
+    document.getElementById('img-upload').value = '';
+}
+
+async function addPost(btn) {
+    const text = document.getElementById('msg-text').value.trim();
+    if (!text && !photoDataUrl) return;
+
+    btn.disabled    = true;
+    btn.textContent = 'Guardando…';
+
+    const encText = await encryptText(text);
+    await dbPut('posts', {
+        text:    encText,
+        sticker: currentSticker,
+        date:    new Date().toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' }),
+        image:   photoDataUrl || null,
+        ts:      Date.now()
+    });
+
+    document.getElementById('msg-text').value = '';
+    clearPhoto();
+    btn.disabled    = false;
+    btn.textContent = 'Publicar 💌';
+    showToast('Recuerdo guardado 💌');
+    await renderPosts();
+}
+
+async function renderPosts() {
+    const container = document.getElementById('posts-container');
+    const posts = await dbAll('posts');
+    posts.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
+    if (!posts.length) {
+        container.innerHTML = '<div class="posts-empty">Aquí aparecerán tus recuerdos 🌸<br><span style="font-size:.85rem">Escribe tu primer pensamiento arriba ✨</span></div>';
+        return;
+    }
+
+    const rows = await Promise.all(posts.map(async p => {
+        const txt = await decryptText(p.text || '');
+        return { ...p, txt };
+    }));
+
+    container.innerHTML = rows.map(p => `
+        <div class="post" data-id="${p.id}">
+            <div class="post-header">
+                <span class="post-date">${p.date || ''}</span>
+                <span class="post-sticker">${p.sticker || '🌸'}</span>
+            </div>
+            <div class="post-text">${esc(p.txt)}</div>
+            ${p.image ? `<img src="${p.image}" class="post-img" loading="lazy">` : ''}
+        </div>
+    `).join('');
+}
+
+function esc(t) {
+    const d = document.createElement('div');
+    d.appendChild(document.createTextNode(t));
+    return d.innerHTML;
+}
+
+// ================================================================
+//  MUSIC PLAYER
+// ================================================================
+document.getElementById('music-file-input').addEventListener('change', async e => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    showToast('Añadiendo canciones…');
+    const existingCount = (await dbAll('music')).length;
+    for (let i = 0; i < files.length; i++) {
+        const f   = files[i];
+        const buf = await f.arrayBuffer();
+        await dbPut('music', {
+            name: f.name.replace(/\.[^/.]+$/, ''),
+            data: buf,
+            mime: f.type,
+            ord:  existingCount + i
+        });
+    }
+    await loadPlaylist();
+    showToast(`${files.length} canción${files.length !== 1 ? 'es' : ''} añadida${files.length !== 1 ? 's' : ''} 🎵`);
+    e.target.value = '';
+});
+
+async function loadPlaylist() {
+    const tracks = await dbAll('music');
+    tracks.sort((a, b) => (a.ord || 0) - (b.ord || 0));
+    playlist = tracks;
+    renderPlaylist();
+}
+
+function renderPlaylist() {
+    const el = document.getElementById('playlist');
+    if (!playlist.length) {
+        el.innerHTML = '<div class="playlist-empty">🎵 Aún no hay canciones.<br>¡Añade la primera!</div>';
+        return;
+    }
+    el.innerHTML = playlist.map((t, i) => `
+        <div class="track ${i === trackIndex ? 'active' : ''}" onclick="loadTrack(${i})">
+            <span class="track-num">${i === trackIndex && playing ? '▶' : i + 1}</span>
+            <div class="track-meta">
+                <div class="track-name">${esc(t.name)}</div>
+            </div>
+            <button class="track-del" onclick="deleteTrack(event,${i})" title="Eliminar">✕</button>
+        </div>
+    `).join('');
+}
+
+function loadTrack(i) {
+    if (i < 0 || i >= playlist.length) return;
+    trackIndex = i;
+    const t   = playlist[i];
+    const url = URL.createObjectURL(new Blob([t.data], { type: t.mime }));
+    audioEl.pause();
+    audioEl.src = url;
+    audioEl.play().then(() => { playing = true; updatePlayerUI(); }).catch(() => {});
+    document.getElementById('np-title').textContent = t.name;
+    document.getElementById('np-sub').textContent   = `Pista ${i + 1} de ${playlist.length}`;
+    renderPlaylist();
+}
+
+function togglePlay() {
+    if (!playlist.length) return;
+    if (trackIndex === -1) { loadTrack(0); return; }
+    if (playing) { audioEl.pause(); playing = false; }
+    else         { audioEl.play();  playing = true;  }
+    updatePlayerUI();
+}
+
+function prevTrack() {
+    if (!playlist.length) return;
+    if (audioEl.currentTime > 3) { audioEl.currentTime = 0; return; }
+    loadTrack((trackIndex - 1 + playlist.length) % playlist.length);
+}
+
+function nextTrack() {
+    if (!playlist.length) return;
+    loadTrack((trackIndex + 1) % playlist.length);
+}
+
+function updatePlayerUI() {
+    document.getElementById('play-btn').textContent = playing ? '⏸' : '▶';
+    document.getElementById('cd-disc').classList.toggle('playing', playing);
+}
+
+function fmtTime(s) {
+    if (!s || isNaN(s)) return '0:00';
+    return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+}
+
+function seekTo(e) {
+    if (!audioEl.duration) return;
+    const bar  = document.getElementById('progress-bar');
+    const pct  = (e.clientX - bar.getBoundingClientRect().left) / bar.offsetWidth;
+    audioEl.currentTime = Math.max(0, Math.min(1, pct)) * audioEl.duration;
+}
+
+audioEl.addEventListener('timeupdate', () => {
+    if (!audioEl.duration) return;
+    const pct  = (audioEl.currentTime / audioEl.duration) * 100;
+    const fill = document.getElementById('progress-fill');
+    fill.style.width = pct + '%';
+    fill.classList.toggle('zero', pct < 0.5);
+    document.getElementById('t-cur').textContent = fmtTime(audioEl.currentTime);
+});
+audioEl.addEventListener('loadedmetadata', () => {
+    document.getElementById('t-tot').textContent = fmtTime(audioEl.duration);
+});
+audioEl.addEventListener('ended', () => {
+    playing = false; updatePlayerUI();
+    if (playlist.length > 1) setTimeout(() => nextTrack(), 600);
+});
+audioEl.addEventListener('play',  () => { playing = true;  updatePlayerUI(); });
+audioEl.addEventListener('pause', () => { playing = false; updatePlayerUI(); });
+
+async function deleteTrack(e, i) {
+    e.stopPropagation();
+    await dbDelete('music', playlist[i].id);
+    if (trackIndex === i) {
+        audioEl.pause(); audioEl.src = '';
+        playing = false; trackIndex = -1;
+        document.getElementById('np-title').textContent = 'Tu Mix Especial ☁️';
+        document.getElementById('np-sub').textContent   = 'Dale al play y acuérdate de mí ✨';
+        document.getElementById('progress-fill').style.width = '0%';
+        document.getElementById('progress-fill').classList.add('zero');
+        updatePlayerUI();
+    } else if (trackIndex > i) {
+        trackIndex--;
+    }
+    await loadPlaylist();
+    showToast('Canción eliminada');
+}
+
+// ================================================================
+//  PRINT  (secret shortcut: Ctrl+Shift+P)
+// ================================================================
+async function doPrint() {
+    const posts = await dbAll('posts');
+    posts.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
+    const rows = await Promise.all(posts.map(async p => ({
+        ...p, txt: await decryptText(p.text || '')
+    })));
+
+    document.getElementById('pt-date').textContent =
+        'Impreso el ' + new Date().toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' });
+
+    document.getElementById('pt-posts').innerHTML = rows.map(p => `
+        <div class="pt-post">
+            <div class="pt-post-header">
+                <div class="pt-post-date">${p.date || ''}</div>
+                <span class="pt-post-sticker">${p.sticker || '🌸'}</span>
+            </div>
+            <div class="pt-post-text">${esc(p.txt)}</div>
+            ${p.image ? `<img src="${p.image}">` : ''}
+        </div>
+    `).join('');
+
+    window.print();
+}
+
+// ================================================================
+//  TOAST
+// ================================================================
+let toastTimer = null;
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ================================================================
+//  INIT
+// ================================================================
+boot().catch(err => console.error('Boot error:', err));
+</script>
 </body>
 </html>
