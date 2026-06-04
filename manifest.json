@@ -1,0 +1,15 @@
+{
+  "name": "My Sweet Diary 🎀",
+  "short_name": "Sweet Diary",
+  "description": "Tu diario romántico privado",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#FFF5F8",
+  "theme_color": "#F48FB1",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "categories": ["lifestyle"]
+}
