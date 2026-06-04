@@ -478,6 +478,92 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;
   border-radius:50px;cursor:pointer;font-family:'Quicksand',sans-serif;font-weight:700;font-size:.82rem}
 .ib-close{background:none;border:none;color:rgba(255,255,255,.8);cursor:pointer;font-size:1.1rem;padding:4px}
 #print-tpl{display:none}
+/* ── RECOVERY / FORGOT PIN ──────────────────────────────────── */
+.recovery-form{margin-top:14px;display:none}
+.recovery-form.on{display:block;animation:fadeIn .28s var(--ease)}
+.rec-input{width:100%;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:var(--r-md);padding:10px 13px;font-family:'Quicksand',sans-serif;
+  font-size:.9rem;color:var(--t1);margin-bottom:10px}
+.rec-input:focus{outline:none;border-color:var(--a1);box-shadow:0 0 0 3px rgba(244,143,177,.15)}
+.rec-select{width:100%;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:var(--r-md);padding:10px 13px;font-family:'Quicksand',sans-serif;
+  font-size:.9rem;color:var(--t1);margin-bottom:10px;cursor:pointer;appearance:auto}
+.rec-select:focus{outline:none;border-color:var(--a1)}
+.forgot-link{background:none;border:none;color:var(--t3);font-size:.8rem;
+  cursor:pointer;font-family:'Quicksand',sans-serif;margin-top:6px;
+  padding:6px 10px;display:block;width:100%;text-align:center;transition:color .2s}
+.forgot-link:hover{color:var(--a1)}
+.setup-q-overlay{position:fixed;inset:0;z-index:320;background:rgba(0,0,0,.65);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  display:none;align-items:center;justify-content:center;padding:24px}
+.setup-q-overlay.on{display:flex;animation:fadeIn .3s ease}
+.setup-q-card{max-width:360px;width:100%;padding:32px 24px}
+
+/* ── FITNESS ──────────────────────────────────────────────── */
+.fit-warn{background:rgba(251,191,36,.12);border:1.5px solid rgba(251,191,36,.35);
+  border-radius:var(--r-md);padding:12px 14px;margin-bottom:14px;
+  display:flex;align-items:flex-start;gap:10px;font-size:.84rem;color:var(--t1)}
+.fit-warn .fw-icon{font-size:1.3rem;flex-shrink:0;margin-top:1px}
+.fit-warn strong{display:block;margin-bottom:2px;color:#D97706}
+.fit-prog-card{padding:18px 20px}
+.fit-prog-title{font-family:'Dancing Script',cursive;font-size:1.1rem;color:var(--t1);
+  font-weight:700;margin-bottom:5px}
+.fit-prog-sub{font-size:.78rem;color:var(--t2);margin-bottom:13px}
+.fit-dots-wrap{display:flex;flex-wrap:wrap;gap:5px}
+.fit-dot{width:20px;height:20px;border-radius:50%;background:var(--border);
+  border:2px solid var(--border2);flex-shrink:0}
+.fit-dot.done{background:#34D399;border-color:#10B981}
+.fit-dot.skip{background:var(--surface2);border-color:var(--border2);opacity:.45}
+.fit-dot.current{background:var(--a1);border-color:#E91E8C;
+  box-shadow:0 0 0 3px rgba(244,143,177,.3);animation:heartbeat 1.5s ease-in-out infinite}
+.fit-dot.future{opacity:.28}
+.fit-block-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;
+  border-radius:50px;font-size:.75rem;font-weight:700;color:#fff;margin-bottom:10px}
+.fit-block-meta{font-size:.8rem;color:var(--t2);margin-bottom:12px}
+.fit-phases{margin-bottom:14px}
+.fit-phase{display:flex;align-items:center;gap:8px;padding:8px 11px;
+  border-radius:var(--r-md);background:var(--surface2);margin-bottom:5px}
+.fit-phase-label{font-size:.76rem;font-weight:700;color:var(--a1);min-width:88px;flex-shrink:0}
+.fit-phase-desc{flex:1;font-size:.82rem;color:var(--t1)}
+.fit-phase-dur{font-size:.72rem;color:var(--t3);font-weight:700;flex-shrink:0}
+.fit-exer-title{font-size:.78rem;font-weight:700;color:var(--t3);
+  text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px}
+.fit-exer-list{margin-bottom:14px}
+.fit-exer{display:flex;align-items:center;gap:9px;padding:10px 11px;
+  border-radius:var(--r-md);background:var(--surface2);margin-bottom:5px;
+  cursor:pointer;border:1.5px solid transparent;transition:background .15s,border-color .15s}
+.fit-exer:hover{background:rgba(244,143,177,.1)}
+.fit-exer.checked{background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.3)}
+.fit-check{width:21px;height:21px;border-radius:50%;border:2px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.72rem;flex-shrink:0;transition:background .15s,border-color .15s}
+.fit-exer.checked .fit-check{background:#34D399;border-color:#10B981;color:#fff}
+.fit-exer-text{font-size:.87rem;color:var(--t1);flex:1}
+.fit-exer.checked .fit-exer-text{color:var(--t3);text-decoration:line-through}
+.fit-notes{width:100%;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:var(--r-md);padding:10px 13px;font-family:'Quicksand',sans-serif;
+  font-size:.88rem;color:var(--t1);resize:none;margin-bottom:12px}
+.fit-notes:focus{outline:none;border-color:var(--a1)}
+.fit-done-banner{text-align:center;padding:16px;border-radius:var(--r-md);margin-bottom:12px}
+.fit-done-banner.success{background:rgba(52,211,153,.1);border:1.5px solid rgba(52,211,153,.3)}
+.fit-done-banner.rest{background:rgba(148,163,184,.08);border:1.5px solid rgba(148,163,184,.2)}
+.fit-done-emoji{font-size:2rem;display:block;margin-bottom:6px}
+.fit-done-title{font-family:'Dancing Script',cursive;font-size:1.2rem;font-weight:700;margin-bottom:3px}
+.fit-done-sub{font-size:.82rem;color:var(--t2)}
+.fit-hist-title{font-size:.78rem;font-weight:700;color:var(--t3);
+  text-transform:uppercase;letter-spacing:.08em;padding:14px 18px 6px}
+.fit-hist-item{display:flex;align-items:center;gap:10px;
+  padding:9px 18px;border-bottom:1px solid var(--border)}
+.fit-hist-item:last-child{border-bottom:none;padding-bottom:14px}
+.fhi-icon{font-size:1.2rem;flex-shrink:0}
+.fhi-info{flex:1;min-width:0}
+.fhi-name{font-size:.86rem;color:var(--t1);font-weight:700}
+.fhi-date{font-size:.76rem;color:var(--t2)}
+.fhi-badge{font-size:.7rem;padding:2px 8px;border-radius:50px;font-weight:700;flex-shrink:0}
+.fhi-badge.done{background:rgba(52,211,153,.15);color:#10B981}
+.fhi-badge.skip{background:rgba(148,163,184,.15);color:var(--t3)}
+.fit-finish{text-align:center;padding:28px 20px}
+
 @media print{
   *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   body>*:not(#print-tpl){display:none!important}
@@ -534,6 +620,15 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;
       <button class="k del" onclick="pb()">⌫</button>
     </div>
     <div class="pin-err" id="pin-err"></div>
+    <!-- Recovery answer form (shown when "Forgot PIN" clicked) -->
+    <div class="recovery-form" id="recovery-form">
+      <p id="recovery-q" style="font-size:.87rem;color:var(--t2);margin:0 0 10px;line-height:1.5;text-align:center"></p>
+      <input class="rec-input" id="recovery-ans" type="text" placeholder="Tu respuesta…"
+        autocomplete="off" onkeydown="if(event.key==='Enter')submitRecovery()">
+      <button class="btn btn-primary w100" onclick="submitRecovery()">Verificar 💕</button>
+      <button class="forgot-link" onclick="cancelRecovery()">← Cancelar</button>
+    </div>
+    <button class="forgot-link" id="forgot-link" onclick="startRecovery()">¿Olvidaste tu PIN?</button>
     <button class="pin-back" onclick="backToSelect()">← Cambiar usuario</button>
   </div>
 </div>
@@ -696,6 +791,26 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;
         </div>
       </div>
     </div>
+
+    <!-- FITNESS -->
+    <div class="screen" id="s-fitness" data-idx="5">
+      <div class="fit-warn screen-pad">
+        <span class="fw-icon">⚠️</span>
+        <div>
+          <strong>Eutirox primero</strong>
+          Tomar en ayunas · esperar 30 min antes de salir · parar si hay palpitaciones o mareo
+        </div>
+      </div>
+      <div class="glass fit-prog-card mb16">
+        <div class="fit-prog-title">Programa 8 semanas 🏃‍♀️</div>
+        <div class="fit-prog-sub" id="fit-prog-sub">Cargando…</div>
+        <div class="fit-dots-wrap" id="fit-dots"></div>
+      </div>
+      <div class="input-card mb16" id="fit-session-card">
+        <div id="fit-session-content">Cargando…</div>
+      </div>
+      <div class="glass mb16" id="fit-history"></div>
+    </div>
   </div>
 
   <!-- BOTTOM NAV -->
@@ -717,6 +832,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;
     </div>
     <div class="nav-btn" id="nav-music" onclick="goTab(4)">
       <span class="ni">💿</span><span>Música</span>
+    </div>
+    <div class="nav-btn" id="nav-fitness" onclick="goTab(5)">
+      <span class="ni">🏃‍♀️</span><span>Rutina</span>
     </div>
   </nav>
 </div>
@@ -797,6 +915,30 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;
   <button class="ib-close" onclick="document.getElementById('install-banner').classList.remove('on')">✕</button>
 </div>
 
+<!-- SECRET QUESTION SETUP OVERLAY (shown after first login) -->
+<div class="setup-q-overlay" id="setup-q-overlay">
+  <div class="glass setup-q-card">
+    <div style="text-align:center;font-size:2.2rem;margin-bottom:10px">🔐</div>
+    <div style="font-family:'Pacifico',cursive;color:var(--a1);font-size:1.25rem;text-align:center;margin-bottom:8px">Seguridad extra</div>
+    <p style="font-size:.85rem;color:var(--t2);text-align:center;margin:0 0 18px;line-height:1.6">
+      Configura una pregunta por si algún día olvidas tu PIN 🌸
+    </p>
+    <select class="rec-select" id="q-select">
+      <option value="">— Elige una pregunta —</option>
+      <option>¿Cómo se llama tu mascota favorita?</option>
+      <option>¿Cuál es tu película favorita?</option>
+      <option>¿Dónde os conocisteis?</option>
+      <option>¿Cuál fue tu primer concierto?</option>
+      <option>¿Cuál es el nombre de tu mejor amiga?</option>
+      <option>¿Cuál era tu asignatura favorita?</option>
+    </select>
+    <input class="rec-input" id="q-answer" type="text" placeholder="Tu respuesta…" autocomplete="off">
+    <button class="btn btn-primary w100" style="margin-bottom:10px" onclick="saveSecretQ()">Guardar 🔐</button>
+    <button style="width:100%;background:none;border:none;color:var(--t3);cursor:pointer;
+      font-family:'Quicksand',sans-serif;font-size:.84rem;padding:8px" onclick="skipSecretQ()">Ahora no</button>
+  </div>
+</div>
+
 <div id="print-tpl"></div>
 <div id="toast"></div>
 
@@ -814,8 +956,9 @@ const sb = window.supabase.createClient(SB_URL, SB_KEY);
 let currentUser = null;   // {id, username}
 let profiles    = {};     // {david:{id,...}, luenna:{id,...}}
 let selectedUsername = null;
-let pinBuf = '', pinMode = 'login'; // 'login' | 'setup' | 'confirm'
+let pinBuf = '', pinMode = 'login'; // 'login' | 'setup' | 'confirm' | 'recover'
 let pinFirst = '';
+let pendingPin = '';
 let currentStk = '🌸';
 let picFile = null;
 let tabIdx = 0;
@@ -961,7 +1104,7 @@ function showPinErr(msg){
   hap([50,30,50]);
 }
 async function pk(d){
-  if(pinBuf.length>=4)return;
+  if(pinBuf.length>=4 || pinMode==='recover')return;
   pinBuf+=d; updateDots(); hap([15]);
   document.getElementById('pin-err').classList.remove('on');
   if(pinBuf.length===4) await handlePin(pinBuf);
@@ -992,42 +1135,44 @@ async function handlePin(pin){
 
 async function doAuth(username, pin, isNew){
   const email = username + '@sweetdiary.local';
-  const btn = document.getElementById('pin-card');
   let { data, error } = await sb.auth.signInWithPassword({ email, password: pin });
   if(error){
-    if(error.message.toLowerCase().includes('invalid') || error.message.toLowerCase().includes('credentials')){
-      // First time — switch to setup mode
-      if(!isNew){
-        pinBuf=''; pinMode='setup'; pinFirst=''; updateDots();
-        document.getElementById('pin-title').textContent='Crea tu PIN 🔐';
-        document.getElementById('pin-desc').textContent='Primera vez — elige 4 números';
-        return;
-      }
+    if(!isNew){
+      // Any login failure (wrong PIN or no account) → switch to setup mode.
+      // If an account already exists, signup in confirm step will catch it.
+      pinBuf=''; pinMode='setup'; pinFirst=''; updateDots();
+      document.getElementById('pin-title').textContent='Crea tu PIN 🔐';
+      document.getElementById('pin-desc').textContent='Primera vez — elige 4 números';
+      document.getElementById('pin-err').classList.remove('on');
+      return;
     }
-    if(isNew){
-      const { error: signUpErr } = await sb.auth.signUp({ email, password: pin, options:{ data:{ username } } });
-      if(signUpErr && !signUpErr.message.includes('already registered')){
-        showPinErr('Error al crear cuenta 😕'); pinBuf=''; updateDots(); return;
+    // isNew = confirm step: attempt signup
+    const { error: signUpErr } = await sb.auth.signUp({ email, password: pin, options:{ data:{ username } } });
+    if(signUpErr){
+      const msg = (signUpErr.message||'').toLowerCase();
+      if(msg.includes('registered') || msg.includes('already')){
+        showPinErr('PIN incorrecto 💕'); pinBuf=''; updateDots(); return;
       }
-      const res2 = await sb.auth.signInWithPassword({ email, password: pin });
-      if(res2.error){ showPinErr('PIN incorrecto 💕'); pinBuf=''; updateDots(); return; }
-      data = res2.data;
-    } else {
-      showPinErr('PIN incorrecto 💕'); pinBuf=''; updateDots(); return;
+      showPinErr('Error al crear cuenta 😕'); pinBuf=''; updateDots(); return;
     }
+    const res2 = await sb.auth.signInWithPassword({ email, password: pin });
+    if(res2.error){ showPinErr('PIN incorrecto 💕'); pinBuf=''; updateDots(); return; }
+    data = res2.data;
   }
-  // Ensure profile row
+  if(!data?.user){ showPinErr('Error inesperado 😕'); return; }
   const { data: existing } = await sb.from('profiles').select('id').eq('id', data.user.id).single();
   if(!existing){
     await sb.from('profiles').insert({ id: data.user.id, username });
   }
+  pendingPin = pin;
   currentUser = { id: data.user.id, username };
   document.getElementById('pin').classList.remove('on');
   await launchApp();
+  await maybePromptSecretQuestion();
 }
 
 document.addEventListener('keydown', async e=>{
-  if(document.getElementById('pin').classList.contains('on')){
+  if(document.getElementById('pin').classList.contains('on') && pinMode!=='recover'){
     if(e.key>='0'&&e.key<='9') await pk(e.key);
     else if(e.key==='Backspace') pb();
   }
@@ -1100,8 +1245,8 @@ function setupRealtime(){
 }
 
 // ── TAB NAV ───────────────────────────────────────────────────
-const navIds=['nav-diary','nav-gallery','nav-mood','nav-dates','nav-music'];
-const screenIds=['s-diary','s-gallery','s-mood','s-dates','s-music'];
+const navIds=['nav-diary','nav-gallery','nav-mood','nav-dates','nav-music','nav-fitness'];
+const screenIds=['s-diary','s-gallery','s-mood','s-dates','s-music','s-fitness'];
 function goTab(idx){
   if(idx===tabIdx)return;
   const dir=idx>tabIdx?1:-1;
@@ -1117,6 +1262,7 @@ function goTab(idx){
   if(idx===2){renderMood();document.getElementById('mood-dot').classList.remove('on')}
   if(idx===3){renderDates();document.getElementById('dates-dot').classList.remove('on')}
   if(idx===4) renderSpotifyEmbeds();
+  if(idx===5) renderFitness();
 }
 
 function setView(v){
@@ -1683,6 +1829,362 @@ document.getElementById('install-btn').addEventListener('click',async()=>{
 });
 function requestNotifPermission(){
   if('Notification' in window&&Notification.permission==='default') Notification.requestPermission();
+}
+
+// ── RECOVERY CRYPTO ───────────────────────────────────────────
+async function hashRecovery(answer, username){
+  const txt = answer.trim().toLowerCase().replace(/\s+/g,' ') + username + 'sweet2026salt';
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+async function encryptPin(pin, keyB64){
+  const kb = Uint8Array.from(atob(keyB64), c=>c.charCodeAt(0)).slice(0,16);
+  const key = await crypto.subtle.importKey('raw', kb, 'AES-GCM', false, ['encrypt']);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM',iv}, key, new TextEncoder().encode(pin));
+  const out = new Uint8Array(12+ct.byteLength);
+  out.set(iv); out.set(new Uint8Array(ct),12);
+  return btoa(String.fromCharCode(...out));
+}
+async function decryptPin(encB64, keyB64){
+  try{
+    const kb = Uint8Array.from(atob(keyB64), c=>c.charCodeAt(0)).slice(0,16);
+    const key = await crypto.subtle.importKey('raw', kb, 'AES-GCM', false, ['decrypt']);
+    const d = Uint8Array.from(atob(encB64), c=>c.charCodeAt(0));
+    const dec = await crypto.subtle.decrypt({name:'AES-GCM',iv:d.slice(0,12)}, key, d.slice(12));
+    return new TextDecoder().decode(dec);
+  }catch{return null;}
+}
+
+// ── FORGOT PIN FLOW ───────────────────────────────────────────
+function _pinKeypad(){return document.querySelector('.keypad')}
+function _pinDots(){return document.querySelector('.pin-dots')}
+
+async function startRecovery(){
+  const {data} = await sb.from('user_recovery').select('secret_q').eq('username',selectedUsername).single();
+  if(!data?.secret_q){
+    toast('No hay pregunta de recuperación configurada.\nPide ayuda a tu pareja 💕');
+    return;
+  }
+  pinMode = 'recover';
+  pinBuf = ''; updateDots();
+  document.getElementById('pin-icon').textContent = '🔑';
+  document.getElementById('pin-title').textContent = 'Recuperar acceso';
+  document.getElementById('pin-desc').textContent = '';
+  _pinDots().style.display = 'none';
+  _pinKeypad().style.display = 'none';
+  document.getElementById('forgot-link').style.display = 'none';
+  document.getElementById('pin-err').classList.remove('on');
+  document.getElementById('recovery-q').textContent = data.secret_q;
+  document.getElementById('recovery-ans').value = '';
+  document.getElementById('recovery-form').classList.add('on');
+  setTimeout(()=>document.getElementById('recovery-ans').focus(), 200);
+}
+
+async function submitRecovery(){
+  const ans = document.getElementById('recovery-ans').value;
+  if(!ans.trim()){toast('Escribe tu respuesta 💕');return;}
+  const aHash = await hashRecovery(ans, selectedUsername);
+  const {data} = await sb.from('user_recovery').select('a_hash,pin_enc').eq('username',selectedUsername).single();
+  if(!data || aHash!==data.a_hash){
+    showPinErr('Respuesta incorrecta 💕'); hap([50,30,50]); return;
+  }
+  const pin = await decryptPin(data.pin_enc, aHash);
+  if(!pin){toast('Error al descifrar. Contacta a tu pareja 😕');return;}
+  _resetPinUI();
+  toast('Acceso recuperado 🔑');
+  setTimeout(()=>doAuth(selectedUsername, pin, false), 400);
+}
+
+function cancelRecovery(){
+  pinMode = 'login'; pinBuf = ''; updateDots();
+  _resetPinUI();
+  const name = selectedUsername==='david'?'David':'Luenna';
+  document.getElementById('pin-icon').textContent = selectedUsername==='david'?'💙':'🌸';
+  document.getElementById('pin-title').textContent = `Hola, ${name}`;
+  document.getElementById('pin-desc').textContent = 'Ingresa tu PIN para entrar';
+}
+
+function _resetPinUI(){
+  document.getElementById('recovery-form').classList.remove('on');
+  _pinDots().style.display = '';
+  _pinKeypad().style.display = '';
+  document.getElementById('forgot-link').style.display = '';
+  document.getElementById('pin-err').classList.remove('on');
+}
+
+// ── SECRET QUESTION SETUP ─────────────────────────────────────
+async function maybePromptSecretQuestion(){
+  const {data} = await sb.from('user_recovery').select('secret_q').eq('username',currentUser.username).single();
+  if(data?.secret_q) return;
+  setTimeout(()=>document.getElementById('setup-q-overlay').classList.add('on'), 1400);
+}
+
+async function saveSecretQ(){
+  const q = document.getElementById('q-select').value;
+  const a = document.getElementById('q-answer').value;
+  if(!q||!a.trim()){toast('Completa pregunta y respuesta 💕');return;}
+  if(!pendingPin){toast('Sesión expirada. Vuelve a entrar 💕');skipSecretQ();return;}
+  const aHash = await hashRecovery(a, currentUser.username);
+  const pinEnc = await encryptPin(pendingPin, aHash);
+  const {error} = await sb.from('user_recovery').upsert(
+    {username:currentUser.username, secret_q:q, a_hash:aHash, pin_enc:pinEnc},
+    {onConflict:'username'}
+  );
+  if(error){toast('Error al guardar 😕');return;}
+  pendingPin = '';
+  document.getElementById('setup-q-overlay').classList.remove('on');
+  toast('Pregunta guardada. PIN protegido 🔐'); hap([20,10,20]);
+}
+
+function skipSecretQ(){
+  pendingPin = '';
+  document.getElementById('setup-q-overlay').classList.remove('on');
+}
+
+// ── FITNESS DATA ──────────────────────────────────────────────
+const FIT_BLOCKS = [
+  {
+    num:1, name:'Adaptación', emoji:'🌱', color:'#34D399', weeks:'1–2', duration:'25–30 min',
+    phases:[
+      {name:'Inicio',        desc:'Caminar suave, ritmo cómodo',              dur:'5 min'},
+      {name:'Principal',     desc:'Caminar a paso normal, terreno llano',      dur:'15 min'},
+      {name:'Movimiento',    desc:'Estiramientos dinámicos en pie',            dur:'5 min'},
+      {name:'Cierre',        desc:'Caminar muy suave + respiración profunda',  dur:'5 min'}
+    ],
+    exercises:[
+      'Rotaciones de hombros: 10 adelante, 10 atrás',
+      'Elevaciones de talones: 15 reps',
+      'Balanceo de piernas: 10 cada lado',
+      'Círculos de cadera: 10 cada dirección'
+    ]
+  },
+  {
+    num:2, name:'Construcción', emoji:'💪', color:'#60A5FA', weeks:'3–4', duration:'35 min',
+    phases:[
+      {name:'Calentamiento', desc:'Caminar suave',                             dur:'5 min'},
+      {name:'Caminata',      desc:'Paso activo, variación de ritmo',           dur:'15 min'},
+      {name:'Circuito',      desc:'Ejercicios de fuerza',                      dur:'10 min'},
+      {name:'Cierre',        desc:'Caminar suave + estiramientos estáticos',   dur:'5 min'}
+    ],
+    exercises:[
+      'Sentadillas con apoyo: 2 × 10 reps',
+      'Elevaciones de talones: 2 × 15 reps',
+      'Flexiones en pared: 2 × 8 reps',
+      'Marcha con rodillas altas: 2 × 20 pasos'
+    ]
+  },
+  {
+    num:3, name:'Progresión', emoji:'🚀', color:'#FBBF24', weeks:'5–6', duration:'40–45 min',
+    phases:[
+      {name:'Calentamiento', desc:'Caminar suave',                             dur:'5 min'},
+      {name:'Caminata',      desc:'Paso activo, pendiente suave si hay',       dur:'20 min'},
+      {name:'Circuito',      desc:'Circuito ampliado',                         dur:'12 min'},
+      {name:'Cierre',        desc:'Estiramientos estáticos + respiración',     dur:'5–8 min'}
+    ],
+    exercises:[
+      'Sentadillas: 3 × 12 reps',
+      'Zancadas estacionarias: 2 × 8 cada pierna',
+      'Flexiones en pared: 2 × 10 reps',
+      'Elevaciones de talones: 3 × 15 reps',
+      'Plancha de pie en pared: 3 × 10 seg'
+    ]
+  },
+  {
+    num:4, name:'Consolidación', emoji:'🏆', color:'#F472B6', weeks:'7–8', duration:'45 min',
+    phases:[
+      {name:'Calentamiento', desc:'Caminar suave',                             dur:'5 min'},
+      {name:'Caminata',      desc:'Paso activo con intervalos opcionales',     dur:'20 min'},
+      {name:'Circuito',      desc:'Circuito completo',                         dur:'15 min'},
+      {name:'Cierre',        desc:'Estiramientos + momento de calma',          dur:'5 min'}
+    ],
+    exercises:[
+      'Sentadillas: 3 × 15 reps',
+      'Zancadas: 3 × 10 cada pierna',
+      'Flexiones en pared o inclinadas: 3 × 10 reps',
+      'Elevaciones de talones: 3 × 20 reps',
+      'Plancha de pie en pared: 3 × 15 seg',
+      'Marcha con rodillas altas: 3 × 30 pasos'
+    ]
+  }
+];
+
+let fitnessChecked = new Set();
+let fitTodayRec = null;
+let fitNextSess = 1;
+
+async function renderFitness(){
+  const today = new Date().toISOString().slice(0,10);
+  const {data:todayR} = await sb.from('workout_sessions').select('*')
+    .eq('user_id',currentUser.id).eq('date',today).single();
+  fitTodayRec = todayR||null;
+
+  const {count} = await sb.from('workout_sessions')
+    .select('id',{count:'exact',head:true})
+    .eq('user_id',currentUser.id).eq('skipped',false);
+  const completedCount = count||0;
+  const alreadyDoneToday = fitTodayRec && !fitTodayRec.skipped;
+  fitNextSess = Math.min(24, alreadyDoneToday ? completedCount : completedCount+1);
+
+  const sessionNum = fitTodayRec ? fitTodayRec.session_num : fitNextSess;
+  const blockIdx   = Math.min(3, Math.floor((sessionNum-1)/6));
+  const weekNum    = Math.min(8, Math.ceil(sessionNum/3));
+  const block      = FIT_BLOCKS[blockIdx];
+
+  fitnessChecked = new Set(
+    Array.isArray(fitTodayRec?.exercises_done) ? fitTodayRec.exercises_done : []
+  );
+
+  const {data:allSess} = await sb.from('workout_sessions')
+    .select('session_num,skipped,date,notes').eq('user_id',currentUser.id).order('session_num');
+  const doneMap = {};
+  (allSess||[]).forEach(s=>{ doneMap[s.session_num] = s.skipped?'skip':'done'; });
+
+  const progSub = document.getElementById('fit-prog-sub');
+  if(progSub){
+    if(completedCount>=24 && !fitTodayRec)
+      progSub.textContent='¡Programa completado! 🏆';
+    else
+      progSub.textContent=`Sesión ${sessionNum} de 24 · Bloque ${blockIdx+1}: ${block.name} · Semana ${weekNum}`;
+  }
+
+  const dotsEl = document.getElementById('fit-dots');
+  if(dotsEl){
+    let html='';
+    for(let i=1;i<=24;i++){
+      let state;
+      if(doneMap[i])           state=doneMap[i];
+      else if(i===sessionNum && !fitTodayRec) state='current';
+      else                     state='future';
+      html+=`<div class="fit-dot ${state}" title="Sesión ${i}"></div>`;
+    }
+    dotsEl.innerHTML=html;
+  }
+
+  renderFitnessCard(block, blockIdx, sessionNum, weekNum, completedCount, allSess||[]);
+  renderFitnessHistory(allSess||[]);
+}
+
+function renderFitnessCard(block, blockIdx, sessionNum, weekNum, completedCount, allSess){
+  const card = document.getElementById('fit-session-content');
+  if(!card) return;
+
+  if(completedCount>=24 && !fitTodayRec){
+    card.innerHTML=`<div class="fit-finish">
+      <span style="font-size:3rem;display:block;margin-bottom:10px">🏆</span>
+      <div style="font-family:'Pacifico',cursive;color:var(--a1);font-size:1.4rem;margin-bottom:8px">¡Programa completado!</div>
+      <div style="color:var(--t2);font-size:.9rem;line-height:1.7">Has completado las 8 semanas.<br>Habla con tu endocrino para el siguiente paso 💪</div>
+    </div>`;
+    return;
+  }
+
+  if(fitTodayRec && !fitTodayRec.skipped){
+    card.innerHTML=`<div class="fit-done-banner success">
+      <span class="fit-done-emoji" style="animation:float 2s ease-in-out infinite">🌟</span>
+      <div class="fit-done-title" style="color:#10B981">¡Sesión ${sessionNum} completada!</div>
+      <div class="fit-done-sub">${fitTodayRec.notes ? esc(fitTodayRec.notes) : 'Buen trabajo hoy 💪'}</div>
+    </div>
+    <button class="btn btn-ghost w100" onclick="resetFitnessToday()">Editar sesión de hoy</button>`;
+    return;
+  }
+
+  if(fitTodayRec && fitTodayRec.skipped){
+    card.innerHTML=`<div class="fit-done-banner rest">
+      <span class="fit-done-emoji">😴</span>
+      <div class="fit-done-title" style="color:var(--t3)">Descanso registrado</div>
+      <div class="fit-done-sub">Mañana será otro día 🌸</div>
+    </div>
+    <button class="btn btn-ghost w100" onclick="resetFitnessToday()">Registrar entrenamiento de hoy</button>`;
+    return;
+  }
+
+  const exerHtml = block.exercises.length ? `
+    <div class="fit-exer-title">Ejercicios — toca para marcar</div>
+    <div class="fit-exer-list">
+      ${block.exercises.map((ex,i)=>`
+        <div class="fit-exer ${fitnessChecked.has(i)?'checked':''}" onclick="toggleFitExer(${i})">
+          <div class="fit-check">${fitnessChecked.has(i)?'✓':''}</div>
+          <div class="fit-exer-text">${esc(ex)}</div>
+        </div>`).join('')}
+    </div>` : '';
+
+  card.innerHTML=`
+    <div style="margin-bottom:10px">
+      <span class="fit-block-badge" style="background:${block.color}">${block.emoji} Bloque ${blockIdx+1}: ${block.name}</span>
+      <div class="fit-block-meta">Semana ${weekNum} · ${block.duration} · Sesión ${sessionNum} de 24</div>
+    </div>
+    <div class="fit-phases">
+      ${block.phases.map(p=>`
+        <div class="fit-phase">
+          <span class="fit-phase-label">${p.name}</span>
+          <span class="fit-phase-desc">${p.desc}</span>
+          <span class="fit-phase-dur">${p.dur}</span>
+        </div>`).join('')}
+    </div>
+    ${exerHtml}
+    <textarea class="fit-notes" id="fit-notes" rows="2" placeholder="Notas opcionales… ¿cómo fue? 🌸"></textarea>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="logFitnessSession(false,${sessionNum},${blockIdx+1},${weekNum})">Completar sesión 🏃‍♀️</button>
+      <button class="btn btn-ghost" onclick="logFitnessSession(true,${sessionNum},${blockIdx+1},${weekNum})">Descanso 😴</button>
+    </div>`;
+}
+
+function toggleFitExer(idx){
+  if(fitnessChecked.has(idx)) fitnessChecked.delete(idx);
+  else fitnessChecked.add(idx);
+  const items = document.querySelectorAll('.fit-exer');
+  const el = items[idx];
+  if(!el) return;
+  el.classList.toggle('checked', fitnessChecked.has(idx));
+  el.querySelector('.fit-check').textContent = fitnessChecked.has(idx)?'✓':'';
+  hap([12]);
+}
+
+async function logFitnessSession(skipped, sessionNum, blockNum, weekNum){
+  const today = new Date().toISOString().slice(0,10);
+  const notes = document.getElementById('fit-notes')?.value.trim()||null;
+  const {error} = await sb.from('workout_sessions').upsert({
+    user_id: currentUser.id, date: today, block: blockNum,
+    week_num: weekNum, session_num: sessionNum,
+    exercises_done: skipped ? [] : Array.from(fitnessChecked),
+    notes, skipped,
+    completed_at: skipped ? null : new Date().toISOString()
+  },{onConflict:'user_id,date'});
+  if(error){toast('Error al guardar 😕');return;}
+  hap([20,10,20]);
+  if(!skipped){ toast('¡Sesión completada! 💪'); spawnHearts(window.innerWidth/2,window.innerHeight/3); confetti(); }
+  else toast('Descanso registrado 😴');
+  fitnessChecked = new Set();
+  await renderFitness();
+}
+
+async function resetFitnessToday(){
+  const today = new Date().toISOString().slice(0,10);
+  await sb.from('workout_sessions').delete().eq('user_id',currentUser.id).eq('date',today);
+  fitTodayRec = null; fitnessChecked = new Set();
+  await renderFitness();
+}
+
+function renderFitnessHistory(allSess){
+  const hist = document.getElementById('fit-history');
+  if(!hist) return;
+  if(!allSess.length){
+    hist.innerHTML='<div style="padding:18px 20px;text-align:center;color:var(--t3);font-size:.88rem;line-height:1.8">Aún no hay sesiones 🌱<br>¡Empieza hoy!</div>';
+    return;
+  }
+  const recent = [...allSess].reverse().slice(0,8);
+  hist.innerHTML='<div class="fit-hist-title">Historial reciente</div>'+
+    recent.map(s=>{
+      const b = FIT_BLOCKS[Math.min(3,Math.floor((s.session_num-1)/6))];
+      return `<div class="fit-hist-item">
+        <span class="fhi-icon">${s.skipped?'😴':'✅'}</span>
+        <div class="fhi-info">
+          <div class="fhi-name">Sesión ${s.session_num} — ${b.name}</div>
+          <div class="fhi-date">${s.date} · Semana ${Math.min(8,Math.ceil(s.session_num/3))}</div>
+        </div>
+        <span class="fhi-badge ${s.skipped?'skip':'done'}">${s.skipped?'Descanso':'Hecho'}</span>
+      </div>`;
+    }).join('');
 }
 
 // ── START ─────────────────────────────────────────────────────
