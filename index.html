@@ -462,7 +462,18 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;
 <!-- LOADING -->
 <div id="load">
   <div class="load-icon">🎀</div>
-  <div class="load-text">Cargando tu rinconcito…</div>
+  <div class="load-text" id="load-text">Cargando tu rinconcito…</div>
+</div>
+
+<!-- MIGRATION OVERLAY -->
+<div id="mig-overlay" style="display:none;position:fixed;inset:0;z-index:190;background:var(--bg);
+  flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px">
+  <div style="font-size:3rem;animation:heartbeat 1s ease-in-out infinite;margin-bottom:16px">💕</div>
+  <div style="font-family:'Pacifico',cursive;color:var(--a1);font-size:1.4rem;margin-bottom:10px">Recuperando tus recuerdos…</div>
+  <div id="mig-status" style="color:var(--t2);font-size:.9rem;font-weight:600;line-height:1.6"></div>
+  <div style="margin-top:20px;width:200px;height:4px;background:var(--border);border-radius:4px;overflow:hidden">
+    <div id="mig-bar" style="height:100%;width:0%;background:linear-gradient(to right,var(--a1),var(--a2));border-radius:4px;transition:width .4s var(--ease)"></div>
+  </div>
 </div>
 
 <!-- LOGIN -->
@@ -744,7 +755,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;
 const DB='SweetDiaryDB', DBV=2;
 let db=null, cryptoKey=null;
 let pinMode='setup', pinBuf='', pinFirst='';
-let needsMig=false, migData=null;
+// migration state not needed — earlyMigrate() is fully self-contained
 let currentStk='🌸', picData=null, currentMood=0;
 let tabIdx=0;
 let tabs=['diary','gallery','mood','dates','music'];
@@ -926,22 +937,110 @@ async function verifyPin(pin){
 // ================================================================
 // MIGRATION
 // ================================================================
-function sniffLS(){
-  const ic=localStorage.getItem('isCouple'),f=localStorage.getItem('fecha_novios'),p=localStorage.getItem('posts');
-  if(ic||f||p){migData={isCouple:ic,fecha:f,posts:p?JSON.parse(p):[]};needsMig=true}
+// ================================================================
+// MIGRATION — runs at boot, BEFORE PIN, so data is never at risk
+// Posts saved unencrypted first; re-encrypted after PIN is known.
+// localStorage is only cleared after IndexedDB write is VERIFIED.
+// ================================================================
+const FALLBACK_DATE = '2025-04-25T00:00:00.000Z';
+
+function migStatus(msg, pct) {
+  document.getElementById('mig-status').textContent = msg;
+  document.getElementById('mig-bar').style.width = pct + '%';
 }
-async function doMig(){
-  if(!migData)return;
-  const{isCouple,fecha,posts}=migData;
-  if(isCouple)await dbPut('settings',{k:'isCouple',v:isCouple});
-  if(fecha)await dbPut('settings',{k:'fecha',v:fecha});
-  for(let i=posts.length-1;i>=0;i--){
-    const p=posts[i];
-    await dbPut('posts',{text:await enc(p.text||''),sticker:p.sticker||'🌸',
-      date:p.date||new Date().toLocaleDateString('es-ES'),image:p.image||null,ts:Date.now()-i*1000});
+
+async function earlyMigrate() {
+  const ic  = localStorage.getItem('isCouple');
+  const f   = localStorage.getItem('fecha_novios');
+  const raw = localStorage.getItem('posts');
+
+  const hasLS = !!(ic || f || raw);
+
+  if (!hasLS) {
+    // Nothing in localStorage — check if IndexedDB also empty → apply fallback
+    const coupleRec = await dbGet('settings', 'isCouple');
+    const fechaRec  = await dbGet('settings', 'fecha');
+    if (!coupleRec && !fechaRec) {
+      await dbPut('settings', {k:'isCouple', v:'true'});
+      await dbPut('settings', {k:'fecha',    v: FALLBACK_DATE});
+    }
+    return false; // no migration needed
   }
-  localStorage.removeItem('isCouple');localStorage.removeItem('fecha_novios');localStorage.removeItem('posts');
-  needsMig=false;migData=null;
+
+  // Show migration overlay
+  const ov = document.getElementById('mig-overlay');
+  ov.style.display = 'flex';
+  migStatus('Encontramos tus datos…', 10);
+
+  try {
+    // 1. Save couple status
+    if (ic) await dbPut('settings', {k:'isCouple', v: ic});
+    migStatus('Guardando tu fecha de inicio…', 25);
+
+    // 2. Save couple date (key: 'fecha')
+    if (f) {
+      await dbPut('settings', {k:'fecha', v: f});
+    } else if (!(await dbGet('settings','fecha'))) {
+      await dbPut('settings', {k:'fecha', v: FALLBACK_DATE});
+    }
+    migStatus('Recuperando entradas del diario…', 40);
+
+    // 3. Save posts WITHOUT encryption (cryptoKey not set yet).
+    //    dec() handles plain text gracefully. They'll be re-encrypted after PIN.
+    const posts = raw ? JSON.parse(raw) : [];
+    let saved = 0;
+    for (let i = posts.length - 1; i >= 0; i--) {
+      const p = posts[i];
+      if (!p) continue;
+      await dbPut('posts', {
+        text:             p.text    || '',
+        sticker:          p.sticker || '🌸',
+        date:             p.date    || new Date().toLocaleDateString('es-ES'),
+        image:            p.image   || null,
+        ts:               Date.now() - (posts.length - 1 - i) * 1000,
+        needsEncryption:  true
+      });
+      saved++;
+      migStatus(`Recuperando entradas… (${saved}/${posts.length})`, 40 + Math.round((saved/Math.max(posts.length,1))*40));
+    }
+
+    // 4. VERIFY before touching localStorage
+    const storedPosts = await dbAll('posts');
+    const storedFecha = await dbGet('settings', 'fecha');
+    const allOk = (posts.length === 0 || storedPosts.length > 0) && storedFecha;
+
+    if (!allOk) throw new Error(`Verification failed: stored=${storedPosts.length} expected=${posts.length}`);
+
+    migStatus('¡Datos recuperados! Limpiando…', 90);
+
+    // 5. Safe to clear localStorage now
+    localStorage.removeItem('isCouple');
+    localStorage.removeItem('fecha_novios');
+    localStorage.removeItem('posts');
+
+    migStatus('¡Todo listo! 💕', 100);
+    await new Promise(r => setTimeout(r, 700));
+
+  } catch (err) {
+    console.error('Migration error:', err);
+    migStatus('Error al recuperar. Tus datos siguen en localStorage por seguridad.', 0);
+    await new Promise(r => setTimeout(r, 2000));
+  }
+
+  ov.style.display = 'none';
+  return true;
+}
+
+// After PIN is known, re-encrypt any posts saved as plaintext
+async function reEncryptPosts() {
+  if (!cryptoKey) return;
+  const all = await dbAll('posts');
+  const pending = all.filter(p => p.needsEncryption && p.text && !p.text.startsWith(ENC));
+  if (!pending.length) return;
+  for (const p of pending) {
+    const encText = await enc(p.text);
+    await dbPut('posts', {...p, text: encText, needsEncryption: false});
+  }
 }
 
 // ================================================================
@@ -980,9 +1079,10 @@ function showNotif(title,body){
 // ================================================================
 async function boot(){
   db=await openDB();
-  sniffLS();
+  // earlyMigrate saves localStorage → IndexedDB BEFORE PIN screen
+  await earlyMigrate();
   const ic=await dbGet('settings','isCouple');
-  const isCouple=ic?ic.v==='true':(needsMig&&migData.isCouple==='true');
+  const isCouple=ic&&ic.v==='true';
   const load=document.getElementById('load');
   load.classList.add('out');
   setTimeout(()=>{load.style.display='none'},420);
@@ -1048,7 +1148,8 @@ async function handlePin(pin){
 }
 async function afterPin(){
   document.getElementById('pin').classList.remove('on');
-  if(needsMig){toast('Migrando tus recuerdos… 💕');await doMig()}
+  // Re-encrypt any posts that were saved as plaintext during earlyMigrate()
+  await reEncryptPosts();
   await launchApp();
 }
 
