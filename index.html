@@ -357,6 +357,25 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;
 .t-del:hover{color:#e74c3c}
 #mfi{display:none}
 
+/* ── SPOTIFY ─────────────────────────────────────────────── */
+.spotify-section{border-top:1.5px solid var(--border);padding:18px 18px 20px}
+.spotify-section-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.spotify-section-hdr h3{font-family:'Dancing Script',cursive;font-size:1.1rem;color:var(--t1);margin:0;font-weight:700}
+.spotify-input-row{display:flex;gap:8px;margin-bottom:14px}
+.spotify-input{flex:1;min-width:0;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:var(--r-md);padding:10px 13px;font-family:'Quicksand',sans-serif;
+  font-size:.88rem;color:var(--t1)}
+.spotify-input:focus{outline:none;border-color:#1DB954;box-shadow:0 0 0 3px rgba(29,185,84,.18)}
+.spotify-input::placeholder{color:var(--t3)}
+.spotify-embed-wrap{position:relative;margin-bottom:12px;border-radius:12px;overflow:hidden;
+  box-shadow:var(--shadow-sm);animation:fadeIn .35s var(--ease)}
+.spotify-embed-wrap iframe{display:block;border-radius:12px;border:none}
+.sp-del{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.55);color:#fff;
+  border:none;width:26px;height:26px;border-radius:50%;font-size:.75rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:background .18s;z-index:2}
+.sp-del:hover{background:rgba(231,76,60,.85)}
+.spotify-empty{text-align:center;color:var(--t3);font-size:.85rem;padding:10px 0 4px;line-height:1.7}
+
 /* ── LOVE NOTES ──────────────────────────────────────────── */
 .note-card{background:linear-gradient(135deg,rgba(244,143,177,.15),rgba(192,132,252,.12));
   border:1.5px solid var(--border2);border-radius:var(--r-lg);padding:20px;margin-bottom:12px;
@@ -656,6 +675,20 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;
           <input type="file" id="mfi" accept="audio/*" multiple>
           <div id="playlist"></div>
         </div>
+
+        <!-- Spotify embeds -->
+        <div class="spotify-section">
+          <div class="spotify-section-hdr">
+            <h3>🎧 Spotify</h3>
+          </div>
+          <div class="spotify-input-row">
+            <input class="spotify-input" id="spotify-url" type="url"
+              placeholder="Pega un link de Spotify…"
+              onkeydown="if(event.key==='Enter')addSpotifyEmbed()">
+            <button class="btn btn-ghost" onclick="addSpotifyEmbed()">+ Añadir</button>
+          </div>
+          <div id="spotify-embeds"></div>
+        </div>
       </div>
     </div>
   </div><!-- /screens -->
@@ -752,7 +785,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;
 // ================================================================
 // STATE
 // ================================================================
-const DB='SweetDiaryDB', DBV=2;
+const DB='SweetDiaryDB', DBV=3;
 let db=null, cryptoKey=null;
 let pinMode='setup', pinBuf='', pinFirst='';
 // migration state not needed — earlyMigrate() is fully self-contained
@@ -879,6 +912,10 @@ function openDB(){
       }
       if(!d.objectStoreNames.contains('notes')){
         const ns=d.createObjectStore('notes',{keyPath:'id',autoIncrement:true});
+      }
+      if(!d.objectStoreNames.contains('spotify')){
+        const sp=d.createObjectStore('spotify',{keyPath:'id',autoIncrement:true});
+        sp.createIndex('ord','ord');
       }
     };
     r.onsuccess=ev=>res(ev.target.result);
@@ -1177,6 +1214,7 @@ async function launchApp(){
   await renderMood();
   await renderDates();
   await loadPlaylist();
+  await renderSpotifyEmbeds();
   await renderNotes();
   await checkCelebrations();
   setupTitleTap();
@@ -1209,6 +1247,7 @@ function goTab(idx){
   if(idx===1)renderGallery();
   if(idx===2){renderMood();document.getElementById('mood-dot').classList.remove('on')}
   if(idx===3){renderDates();document.getElementById('dates-dot').classList.remove('on')}
+  if(idx===4)renderSpotifyEmbeds();
 }
 
 // ================================================================
@@ -1653,6 +1692,76 @@ async function delTrack(e,i){
     updatePlayerUI()
   }else if(trkIdx>i)trkIdx--;
   await loadPlaylist();toast('Canción eliminada');
+}
+
+// ================================================================
+// SPOTIFY EMBEDS
+// ================================================================
+function parseSpotifyUrl(raw) {
+  try {
+    const u = new URL(raw.trim());
+    if (!u.hostname.includes('spotify.com')) return null;
+    const parts = u.pathname.split('/').filter(Boolean);
+    const TYPES = ['track','playlist','album','artist','episode','show'];
+    const ti = parts.findIndex(p => TYPES.includes(p));
+    if (ti === -1) return null;
+    const type = parts[ti];
+    const id   = parts[ti + 1] && parts[ti + 1].replace(/\?.*/, '');
+    if (!id) return null;
+    const isLong = (type === 'playlist' || type === 'album' || type === 'show');
+    return {
+      type, id,
+      embedUrl: `https://open.spotify.com/embed/${type}/${id}?utm_source=generator`,
+      height: isLong ? 352 : 152
+    };
+  } catch { return null; }
+}
+
+async function addSpotifyEmbed() {
+  const inp = document.getElementById('spotify-url');
+  const url = inp.value.trim();
+  if (!url) { inp.focus(); return; }
+  const parsed = parseSpotifyUrl(url);
+  if (!parsed) { toast('Link de Spotify no válido 🎵'); hap([40,20,40]); return; }
+  const existing = await dbAll('spotify');
+  if (existing.some(e => e.embedUrl === parsed.embedUrl)) {
+    toast('Ese link ya está añadido 🎵'); return;
+  }
+  await dbPut('spotify', { ...parsed, addedAt: Date.now(), ord: existing.length });
+  inp.value = '';
+  hap([20, 10, 20]);
+  toast('🎧 Spotify añadido');
+  await renderSpotifyEmbeds();
+}
+
+async function renderSpotifyEmbeds() {
+  const c = document.getElementById('spotify-embeds');
+  if (!c) return;
+  const embeds = await dbAll('spotify');
+  embeds.sort((a, b) => (a.ord || 0) - (b.ord || 0));
+  if (!embeds.length) {
+    c.innerHTML = '<div class="spotify-empty">Pega un link de Spotify para añadirlo aquí 🎧</div>';
+    return;
+  }
+  c.innerHTML = embeds.map(e => `
+    <div class="spotify-embed-wrap">
+      <iframe
+        src="${e.embedUrl}"
+        width="100%"
+        height="${e.height}"
+        frameborder="0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy">
+      </iframe>
+      <button class="sp-del" onclick="delSpotifyEmbed(${e.id})" title="Eliminar">✕</button>
+    </div>`).join('');
+}
+
+async function delSpotifyEmbed(id) {
+  await dbDel('spotify', id);
+  hap([15]);
+  toast('Eliminado');
+  await renderSpotifyEmbeds();
 }
 
 // ================================================================
