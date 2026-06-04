@@ -1147,17 +1147,34 @@ async function doAuth(username, pin, isNew){
       return;
     }
     // isNew = confirm step: attempt signup
-    const { error: signUpErr } = await sb.auth.signUp({ email, password: pin, options:{ data:{ username } } });
+    const { data: signUpData, error: signUpErr } = await sb.auth.signUp({ email, password: pin, options:{ data:{ username } } });
     if(signUpErr){
       const msg = (signUpErr.message||'').toLowerCase();
       if(msg.includes('registered') || msg.includes('already')){
         showPinErr('PIN incorrecto 💕'); pinBuf=''; updateDots(); return;
       }
-      showPinErr('Error al crear cuenta 😕'); pinBuf=''; updateDots(); return;
+      showPinErr('Error: ' + (signUpErr.message||'cuenta no creada')); pinBuf=''; updateDots(); return;
     }
-    const res2 = await sb.auth.signInWithPassword({ email, password: pin });
-    if(res2.error){ showPinErr('PIN incorrecto 💕'); pinBuf=''; updateDots(); return; }
-    data = res2.data;
+    if(signUpData?.session){
+      // Auto-confirm enabled in Supabase → session created immediately
+      data = signUpData;
+    } else if(signUpData?.user && !signUpData?.session){
+      // Email confirmation required — show actionable error
+      showPinErr('⚠️ Desactiva "Confirm email" en Supabase Auth → Settings → Email');
+      pinBuf=''; updateDots(); return;
+    } else {
+      const res2 = await sb.auth.signInWithPassword({ email, password: pin });
+      if(res2.error){
+        const em = (res2.error.message||'').toLowerCase();
+        if(em.includes('confirm') || em.includes('verified') || em.includes('not confirmed')){
+          showPinErr('⚠️ Desactiva "Confirm email" en Supabase Auth → Settings → Email');
+        } else {
+          showPinErr('PIN incorrecto 💕');
+        }
+        pinBuf=''; updateDots(); return;
+      }
+      data = res2.data;
+    }
   }
   if(!data?.user){ showPinErr('Error inesperado 😕'); return; }
   const { data: existing } = await sb.from('profiles').select('id').eq('id', data.user.id).single();
