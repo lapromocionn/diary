@@ -1,1573 +1,1583 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Sweet Diary 🎀</title>
-    <link rel="manifest" href="manifest.json">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Pacifico&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
-    <style>
-        /* ============================================================
-           CSS VARIABLES + LIGHT THEME
-        ============================================================ */
-        :root {
-            --pink-50:  #FFF5F8;
-            --pink-100: #FFE4EF;
-            --pink-200: #FFCCE0;
-            --pink-300: #FFB3CC;
-            --pink-400: #F48FB1;
-            --pink-500: #E91E8C;
-            --pink-600: #C2185B;
-            --purple-100: #F3E5F5;
-            --purple-400: #CE93D8;
-            --purple-600: #8E24AA;
-            --text-primary: #4A2040;
-            --text-secondary: #9E6B85;
-            --text-muted: #C4A0B5;
-            --bg-body: #FFF5F8;
-            --bg-card: rgba(255,255,255,0.88);
-            --bg-input: rgba(255,255,255,0.96);
-            --border: rgba(244,143,177,0.28);
-            --shadow-sm: 0 2px 10px rgba(228,64,151,0.10);
-            --shadow-md: 0 6px 22px rgba(228,64,151,0.16);
-            --shadow-lg: 0 14px 40px rgba(228,64,151,0.22);
-            --radius-sm: 14px;
-            --radius-md: 20px;
-            --radius-lg: 28px;
-            --radius-xl: 42px;
-            --spring: cubic-bezier(0.34,1.56,0.64,1);
-            --ease: cubic-bezier(0.4,0,0.2,1);
-        }
-
-        /* ============================================================
-           DARK MODE (auto via prefers-color-scheme)
-        ============================================================ */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --pink-50:  #180A10;
-                --pink-100: #27101B;
-                --pink-200: #3D1828;
-                --pink-300: #5A2438;
-                --pink-400: #F48FB1;
-                --pink-500: #F06292;
-                --pink-600: #F8BBD0;
-                --purple-100: #1C0A22;
-                --purple-400: #BA68C8;
-                --purple-600: #CE93D8;
-                --text-primary: #FFD6EA;
-                --text-secondary: #F0A0C0;
-                --text-muted: #9E6B85;
-                --bg-body: #100810;
-                --bg-card: rgba(28,10,20,0.90);
-                --bg-input: rgba(40,15,28,0.96);
-                --border: rgba(244,143,177,0.18);
-                --shadow-sm: 0 2px 10px rgba(0,0,0,0.45);
-                --shadow-md: 0 6px 22px rgba(0,0,0,0.55);
-                --shadow-lg: 0 14px 40px rgba(0,0,0,0.65);
-            }
-        }
-
-        /* ============================================================
-           BASE
-        ============================================================ */
-        *,*::before,*::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html { scroll-behavior: smooth; }
-        body {
-            margin: 0; padding: 0;
-            font-family: 'Quicksand', sans-serif;
-            background: var(--bg-body);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center;
-            overflow-x: hidden;
-            transition: background 0.4s var(--ease), color 0.4s var(--ease);
-        }
-
-        /* Ambient background glow */
-        body::before {
-            content: '';
-            position: fixed; inset: 0;
-            background:
-                radial-gradient(ellipse 60% 50% at 15% 15%, rgba(244,143,177,0.14) 0%, transparent 60%),
-                radial-gradient(ellipse 50% 60% at 85% 85%, rgba(206,147,216,0.12) 0%, transparent 60%),
-                radial-gradient(ellipse 80% 40% at 50% 50%, rgba(249,180,206,0.07) 0%, transparent 70%);
-            pointer-events: none; z-index: 0;
-        }
-
-        /* ============================================================
-           FLOATING PARTICLES
-        ============================================================ */
-        #floaties {
-            position: fixed; inset: 0;
-            pointer-events: none; z-index: 0; overflow: hidden;
-        }
-        .floatie {
-            position: absolute; opacity: 0;
-            animation: floatUp linear infinite;
-            user-select: none;
-        }
-        @keyframes floatUp {
-            0%   { transform: translateY(110vh) rotate(0deg);   opacity: 0; }
-            8%   { opacity: 0.13; }
-            92%  { opacity: 0.13; }
-            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
-        }
-
-        /* ============================================================
-           KEYFRAMES
-        ============================================================ */
-        @keyframes fadeIn   { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: none; } }
-        @keyframes slideUp  { from { opacity:0; transform: translateY(28px) scale(.96); } to { opacity:1; transform: none; } }
-        @keyframes bounceIn { 0%{transform:scale(.3);opacity:0} 55%{transform:scale(1.06)} 75%{transform:scale(.96)} 100%{transform:scale(1);opacity:1} }
-        @keyframes heartbeat{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
-        @keyframes spin     { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        @keyframes float    { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
-        @keyframes pulseRing{ 0%{transform:translate(-50%,-50%) scale(1);opacity:.6} 100%{transform:translate(-50%,-50%) scale(1.6);opacity:0} }
-        @keyframes shake    { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
-        @keyframes dotPop   { 0%{transform:scale(0.5)} 60%{transform:scale(1.25)} 100%{transform:scale(1)} }
-        @keyframes postIn   { from{opacity:0;transform:translateX(-12px) scale(.97)} to{opacity:1;transform:none} }
-
-        /* ============================================================
-           LOADING SCREEN
-        ============================================================ */
-        #loading-screen {
-            position: fixed; inset: 0; z-index: 100;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: var(--bg-body);
-            transition: opacity 0.4s var(--ease);
-        }
-        #loading-screen.hidden { opacity: 0; pointer-events: none; }
-        .loading-emoji  { font-size: 3rem; animation: heartbeat 1.1s ease-in-out infinite; margin-bottom: 14px; }
-        .loading-text   { color: var(--text-secondary); font-size: .95rem; font-weight: 600; }
-
-        /* ============================================================
-           SHARED CARD / BUTTON STYLES
-        ============================================================ */
-        .glass-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .btn-primary {
-            display: block; width: 100%;
-            background: linear-gradient(135deg, var(--pink-400), var(--pink-500));
-            color: #fff; border: none;
-            padding: 14px 32px;
-            border-radius: 50px;
-            font-family: 'Quicksand', sans-serif;
-            font-size: 1.05rem; font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 4px 0 var(--pink-600), var(--shadow-sm);
-            transition: transform .18s var(--spring), box-shadow .18s var(--ease);
-            position: relative; overflow: hidden;
-        }
-        .btn-primary:hover  { transform: translateY(-2px); box-shadow: 0 6px 0 var(--pink-600), var(--shadow-md); }
-        .btn-primary:active { transform: translateY(1px);  box-shadow: 0 2px 0 var(--pink-600), var(--shadow-sm); }
-        .btn-primary:disabled { opacity: .65; cursor: not-allowed; transform: none; }
-
-        .btn-primary .ripple {
-            position: absolute; border-radius: 50%;
-            background: rgba(255,255,255,.35);
-            transform: scale(0);
-            animation: rippleAnim .55s ease-out;
-            pointer-events: none;
-        }
-        @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
-
-        /* ============================================================
-           LOGIN SECTION
-        ============================================================ */
-        #login-section {
-            display: none; flex-direction: column;
-            justify-content: center; align-items: center;
-            height: 100vh; padding: 24px;
-            position: relative; z-index: 10;
-        }
-        #login-section.visible { display: flex; animation: fadeIn .5s var(--ease); }
-
-        .login-card {
-            padding: 42px 36px 36px;
-            max-width: 340px; width: 100%;
-            text-align: center;
-        }
-
-        .login-emoji {
-            font-size: 4rem; display: block;
-            animation: float 3s ease-in-out infinite, heartbeat 2s ease-in-out infinite;
-            margin-bottom: 8px;
-        }
-
-        .login-card h1 {
-            font-family: 'Pacifico', cursive;
-            color: var(--pink-400); font-size: 2.2rem;
-            margin: 0 0 10px;
-        }
-
-        .login-card p {
-            color: var(--text-secondary); font-size: .95rem;
-            line-height: 1.55; margin: 0 0 18px;
-        }
-
-        .login-question {
-            font-family: 'Dancing Script', cursive;
-            font-size: 1.55rem; color: var(--text-primary);
-            line-height: 1.35; margin: 0 0 28px;
-        }
-
-        .btn-zone {
-            position: relative; height: 56px;
-            display: flex; justify-content: center; align-items: center;
-        }
-
-        #btn-si { width: auto; padding: 14px 44px; }
-
-        #btn-no {
-            position: fixed;
-            background: rgba(220,220,220,.75);
-            color: #aaa; border: none;
-            padding: 10px 20px; border-radius: 50px;
-            cursor: pointer; z-index: 200;
-            font-family: 'Quicksand', sans-serif;
-            font-weight: 700; font-size: .9rem;
-            backdrop-filter: blur(6px);
-            white-space: nowrap;
-            transition: left .14s ease, top .14s ease;
-        }
-
-        /* ============================================================
-           PIN SECTION
-        ============================================================ */
-        #pin-section {
-            display: none; flex-direction: column;
-            justify-content: center; align-items: center;
-            height: 100vh; padding: 24px;
-            position: relative; z-index: 10;
-        }
-        #pin-section.visible { display: flex; animation: fadeIn .45s var(--ease); }
-
-        .pin-card {
-            padding: 40px 32px 32px;
-            max-width: 320px; width: 100%;
-            text-align: center;
-        }
-
-        .pin-icon  { font-size: 2.8rem; margin-bottom: 14px; }
-        .pin-card h2 {
-            font-family: 'Pacifico', cursive;
-            color: var(--pink-400); font-size: 1.55rem;
-            margin: 0 0 8px;
-        }
-        .pin-card p { color: var(--text-secondary); font-size: .9rem; margin: 0 0 26px; }
-
-        .pin-dots {
-            display: flex; gap: 18px;
-            justify-content: center; margin-bottom: 30px;
-        }
-        .pin-dot {
-            width: 15px; height: 15px; border-radius: 50%;
-            border: 2px solid var(--pink-400);
-            background: transparent;
-            transition: background .2s var(--ease);
-        }
-        .pin-dot.filled {
-            background: var(--pink-400);
-            animation: dotPop .25s var(--spring);
-        }
-
-        .pin-keypad {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 11px;
-        }
-        .pin-key {
-            background: var(--bg-input);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 16px 10px;
-            font-family: 'Quicksand', sans-serif;
-            font-size: 1.25rem; font-weight: 700;
-            color: var(--text-primary);
-            cursor: pointer;
-            box-shadow: var(--shadow-sm);
-            transition: transform .15s var(--spring), background .15s var(--ease);
-        }
-        .pin-key:active { transform: scale(.9); background: var(--pink-100); }
-        .pin-key.del    { color: var(--pink-400); font-size: 1.1rem; }
-
-        .pin-error {
-            color: #e74c3c; font-size: .85rem;
-            margin-top: 14px; min-height: 20px;
-            transition: opacity .2s;
-        }
-        .pin-error.hidden { opacity: 0; }
-        .pin-card.shake { animation: shake .4s ease; }
-
-        /* ============================================================
-           APP CONTAINER
-        ============================================================ */
-        #app-container {
-            display: none;
-            width: 100%; max-width: 480px;
-            padding: 20px 16px 96px;
-            position: relative; z-index: 10;
-        }
-        #app-container.visible { display: block; animation: fadeIn .45s var(--ease); }
-
-        /* ============================================================
-           HEADER
-        ============================================================ */
-        header { text-align: center; padding: 26px 0 18px; }
-
-        .header-title {
-            font-family: 'Pacifico', cursive;
-            color: var(--pink-400); font-size: 2.5rem;
-            margin: 0 0 10px; line-height: 1.2;
-            text-shadow: 0 2px 10px rgba(244,143,177,.3);
-        }
-
-        #counter {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--pink-400), var(--purple-400));
-            color: #fff; font-size: .82rem; font-weight: 700;
-            padding: 5px 18px; border-radius: 50px;
-            box-shadow: var(--shadow-sm);
-            letter-spacing: .02em;
-        }
-
-        /* ============================================================
-           DIARY TAB — INPUT CARD
-        ============================================================ */
-        #tab-diary { animation: fadeIn .35s var(--ease); }
-
-        .input-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .input-card textarea {
-            width: 100%;
-            background: var(--bg-input);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 14px 16px;
-            font-family: 'Quicksand', sans-serif;
-            font-size: .96rem; color: var(--text-primary);
-            resize: none; line-height: 1.65;
-            margin-bottom: 14px;
-            transition: border-color .2s var(--ease), box-shadow .2s var(--ease);
-        }
-        .input-card textarea:focus {
-            outline: none;
-            border-color: var(--pink-400);
-            box-shadow: 0 0 0 3px rgba(244,143,177,.2);
-        }
-        .input-card textarea::placeholder { color: var(--text-muted); }
-
-        .tools {
-            display: flex; justify-content: space-between;
-            align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;
-        }
-
-        .sticker-row { display: flex; gap: 6px; flex-wrap: wrap; }
-
-        .sticker {
-            font-size: 1.45rem; cursor: pointer;
-            opacity: .38; padding: 4px;
-            transition: opacity .2s var(--ease), transform .2s var(--spring);
-            border-radius: 8px;
-        }
-        .sticker.active {
-            opacity: 1; transform: scale(1.28);
-            filter: drop-shadow(0 2px 5px rgba(244,143,177,.55));
-        }
-        .sticker:hover:not(.active) { opacity: .7; transform: scale(1.1); }
-
-        .file-upload-label {
-            display: inline-flex; align-items: center; gap: 5px;
-            color: var(--pink-400); font-weight: 700;
-            font-size: .84rem; cursor: pointer;
-            background: var(--pink-100);
-            padding: 7px 14px; border-radius: 50px;
-            border: 1.5px solid var(--border);
-            transition: background .18s var(--ease), border-color .18s var(--ease);
-        }
-        .file-upload-label:hover { background: var(--pink-200); border-color: var(--pink-400); }
-        .file-upload-label input { display: none; }
-
-        /* ============================================================
-           POST CARDS
-        ============================================================ */
-        .post {
-            background: var(--bg-card);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            padding: 18px 18px 18px 22px;
-            margin-bottom: 14px;
-            position: relative; overflow: hidden;
-            animation: postIn .4s var(--spring);
-            transition: transform .2s var(--ease), box-shadow .2s var(--ease);
-        }
-        .post::before {
-            content: '';
-            position: absolute; left: 0; top: 0; bottom: 0;
-            width: 4px;
-            background: linear-gradient(to bottom, var(--pink-400), var(--purple-400));
-        }
-        .post:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-
-        .post-header {
-            display: flex; justify-content: space-between;
-            align-items: center; margin-bottom: 9px;
-        }
-        .post-date    { font-size: .78rem; color: var(--text-secondary); font-weight: 700; }
-        .post-sticker { font-size: 1.3rem; }
-        .post-text    {
-            line-height: 1.7; color: var(--text-primary);
-            font-size: .95rem; white-space: pre-wrap; word-break: break-word;
-        }
-        .post-img {
-            width: 100%; border-radius: var(--radius-md);
-            margin-top: 12px; object-fit: cover;
-            max-height: 290px; box-shadow: var(--shadow-sm);
-            display: block;
-        }
-        .posts-empty {
-            text-align: center; color: var(--text-muted);
-            padding: 48px 20px; font-size: .95rem; line-height: 1.8;
-        }
-
-        /* ============================================================
-           MUSIC TAB
-        ============================================================ */
-        #tab-music { display: none; animation: fadeIn .35s var(--ease); }
-
-        .music-card {
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-md);
-            overflow: hidden;
-        }
-
-        /* CD Player */
-        .cd-player-area { text-align: center; padding: 36px 24px 24px; }
-
-        .cd-wrapper {
-            position: relative; width: 164px; height: 164px;
-            margin: 0 auto 22px;
-        }
-
-        .cd-disc {
-            width: 164px; height: 164px; border-radius: 50%;
-            background:
-                radial-gradient(circle at 32% 28%, rgba(255,255,255,.45) 0%, transparent 28%),
-                conic-gradient(
-                    #FF6B9D 0deg, #CE93D8 50deg, #90CAF9 110deg,
-                    #80DEEA 160deg, #A5D6A7 210deg, #FFF176 260deg,
-                    #FFAB91 310deg, #FF6B9D 360deg
-                );
-            box-shadow: 0 10px 34px rgba(0,0,0,.40), inset 0 0 24px rgba(0,0,0,.28);
-            display: flex; align-items: center; justify-content: center;
-            position: relative;
-        }
-        .cd-disc.playing { animation: spin 3.2s linear infinite; }
-
-        .cd-hole {
-            width: 46px; height: 46px; border-radius: 50%;
-            background: var(--bg-card);
-            border: 3.5px solid rgba(255,255,255,.6);
-            box-shadow: 0 2px 8px rgba(0,0,0,.35), inset 0 1px 3px rgba(0,0,0,.25);
-            position: relative; z-index: 1;
-        }
-        .cd-hole::after {
-            content: '';
-            position: absolute; inset: 0; margin: auto;
-            width: 10px; height: 10px; border-radius: 50%;
-            background: rgba(200,100,150,.5);
-        }
-
-        .pulse-ring {
-            position: absolute; top: 50%; left: 50%;
-            width: 164px; height: 164px; border-radius: 50%;
-            border: 2px solid var(--pink-400);
-            opacity: 0; pointer-events: none;
-        }
-        .cd-disc.playing ~ .pulse-ring { animation: pulseRing 2.1s ease-out infinite; }
-
-        /* Now-playing info */
-        .now-playing { margin-bottom: 22px; }
-        .np-title {
-            font-family: 'Dancing Script', cursive;
-            font-size: 1.4rem; color: var(--text-primary);
-            font-weight: 700; margin-bottom: 3px;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .np-subtitle { font-size: .82rem; color: var(--text-secondary); }
-
-        /* Progress */
-        .progress-wrap { margin-bottom: 18px; }
-        .progress-bar {
-            width: 100%; height: 5px;
-            background: var(--border);
-            border-radius: 5px; cursor: pointer;
-            margin-bottom: 6px; position: relative;
-        }
-        .progress-fill {
-            height: 100%; border-radius: 5px;
-            background: linear-gradient(to right, var(--pink-400), var(--purple-400));
-            width: 0%; position: relative;
-            transition: width .1s linear;
-        }
-        .progress-fill::after {
-            content: ''; position: absolute;
-            right: -5px; top: -4px;
-            width: 13px; height: 13px; border-radius: 50%;
-            background: var(--pink-400);
-            border: 2.5px solid var(--bg-card);
-            box-shadow: var(--shadow-sm);
-            transition: opacity .2s;
-        }
-        .progress-fill.zero::after { opacity: 0; }
-
-        .time-row { display: flex; justify-content: space-between; font-size: .73rem; color: var(--text-muted); }
-
-        /* Controls */
-        .controls { display: flex; align-items: center; justify-content: center; gap: 18px; }
-        .ctrl-btn {
-            background: none; border: none; cursor: pointer;
-            color: var(--text-secondary); padding: 10px; border-radius: 50%;
-            font-size: 1.25rem;
-            transition: color .18s var(--ease), transform .18s var(--spring);
-        }
-        .ctrl-btn:hover { color: var(--pink-400); transform: scale(1.12); }
-
-        .ctrl-btn.main {
-            width: 58px; height: 58px; font-size: 1.4rem;
-            background: linear-gradient(135deg, var(--pink-400), var(--pink-500));
-            color: #fff; box-shadow: var(--shadow-md);
-        }
-        .ctrl-btn.main:hover { transform: scale(1.08); box-shadow: var(--shadow-lg); }
-        .ctrl-btn.main:active { transform: scale(.95); }
-
-        /* Playlist */
-        .playlist-area {
-            border-top: 1.5px solid var(--border);
-            padding: 22px 20px 18px;
-        }
-        .playlist-header {
-            display: flex; justify-content: space-between;
-            align-items: center; margin-bottom: 16px;
-        }
-        .playlist-header h3 {
-            font-family: 'Dancing Script', cursive;
-            font-size: 1.15rem; color: var(--text-primary); margin: 0;
-        }
-
-        .btn-add-song {
-            background: var(--pink-100); color: var(--pink-500);
-            border: 1.5px solid var(--border);
-            padding: 6px 14px; border-radius: 50px;
-            font-family: 'Quicksand', sans-serif;
-            font-size: .8rem; font-weight: 700; cursor: pointer;
-            transition: background .18s var(--ease), border-color .18s var(--ease);
-        }
-        .btn-add-song:hover { background: var(--pink-200); border-color: var(--pink-400); }
-        #music-file-input { display: none; }
-
-        .playlist-empty { text-align: center; color: var(--text-muted); font-size: .9rem; padding: 18px; line-height: 1.7; }
-
-        .track {
-            display: flex; align-items: center; gap: 12px;
-            padding: 10px 12px; border-radius: var(--radius-md);
-            cursor: pointer; margin-bottom: 5px;
-            transition: background .15s var(--ease);
-        }
-        .track:hover { background: var(--pink-100); }
-        .track.active {
-            background: linear-gradient(135deg, rgba(244,143,177,.18), rgba(206,147,216,.13));
-            border: 1.5px solid var(--border);
-        }
-
-        .track-num {
-            font-size: .78rem; color: var(--text-muted);
-            width: 22px; text-align: center; flex-shrink: 0;
-        }
-        .track.active .track-num { color: var(--pink-400); font-size: .95rem; }
-
-        .track-meta { flex: 1; min-width: 0; }
-        .track-name {
-            font-size: .9rem; font-weight: 600; color: var(--text-primary);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .track.active .track-name { color: var(--pink-400); }
-        .track-dur { font-size: .74rem; color: var(--text-muted); }
-
-        .track-del {
-            background: none; border: none; cursor: pointer;
-            color: var(--text-muted); font-size: .9rem;
-            padding: 5px; border-radius: 50%;
-            opacity: 0; transition: opacity .15s var(--ease), color .15s var(--ease);
-        }
-        .track:hover .track-del { opacity: 1; }
-        .track-del:hover { color: #e74c3c; }
-
-        /* ============================================================
-           BOTTOM NAV
-        ============================================================ */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: var(--bg-card);
-            backdrop-filter: blur(22px);
-            -webkit-backdrop-filter: blur(22px);
-            border-top: 1.5px solid var(--border);
-            box-shadow: 0 -3px 18px rgba(0,0,0,.08);
-            display: flex; justify-content: space-around;
-            padding: 10px 0 max(10px, env(safe-area-inset-bottom));
-            z-index: 100;
-        }
-
-        .nav-item {
-            flex: 1; text-align: center; padding: 5px;
-            cursor: pointer; color: var(--text-muted);
-            font-size: 1.5rem;
-            transition: color .22s var(--ease), transform .22s var(--spring);
-            border-radius: var(--radius-sm);
-        }
-        .nav-item:hover  { color: var(--pink-300); }
-        .nav-item.active { color: var(--pink-400); transform: translateY(-3px); }
-        .nav-label {
-            font-size: .7rem; font-weight: 700;
-            display: block; margin-top: 2px;
-        }
-
-        /* ============================================================
-           TOAST
-        ============================================================ */
-        #toast {
-            position: fixed; bottom: 90px; left: 50%;
-            transform: translateX(-50%) translateY(12px);
-            background: var(--text-primary); color: var(--bg-body);
-            padding: 10px 24px; border-radius: 50px;
-            font-size: .84rem; font-weight: 700;
-            opacity: 0; pointer-events: none; z-index: 500;
-            white-space: nowrap; box-shadow: var(--shadow-md);
-            transition: opacity .28s var(--ease), transform .28s var(--spring);
-        }
-        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        /* ============================================================
-           PRINT STYLES (secret: Ctrl+Shift+P)
-        ============================================================ */
-        #print-template { display: none; }
-
-        @media print {
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-
-            body > *:not(#print-template) { display: none !important; }
-
-            #print-template {
-                display: block !important;
-                font-family: Georgia, 'Times New Roman', serif;
-                max-width: 680px; margin: 0 auto;
-                padding: 40px 48px; color: #333;
-            }
-
-            .pt-header {
-                text-align: center;
-                border-bottom: 3px solid #F48FB1;
-                padding-bottom: 22px; margin-bottom: 32px;
-            }
-            .pt-header h1 {
-                font-family: Georgia, serif;
-                font-size: 2.2rem; color: #F48FB1; margin: 0 0 6px;
-            }
-            .pt-header p { color: #9E6B85; font-size: .9rem; margin: 0; font-style: italic; }
-
-            .pt-post {
-                page-break-inside: avoid;
-                margin-bottom: 28px;
-                padding: 20px 22px;
-                border: 1px solid #FFB3CC;
-                border-left: 5px solid #F48FB1;
-                border-radius: 10px;
-                background: #FFF5F8 !important;
-            }
-            .pt-post-header {
-                display: flex; justify-content: space-between;
-                align-items: center; margin-bottom: 10px;
-            }
-            .pt-post-date   { font-size: .82rem; color: #F48FB1; font-weight: bold; }
-            .pt-post-sticker{ font-size: 1.4rem; }
-            .pt-post-text   { line-height: 1.9; font-size: .97rem; white-space: pre-wrap; word-break: break-word; }
-            .pt-post img    { max-width: 100%; border-radius: 8px; margin-top: 12px; }
-
-            .pt-footer {
-                text-align: center; margin-top: 40px;
-                padding-top: 20px; border-top: 2px solid #FFB3CC;
-                color: #9E6B85; font-size: .88rem; font-style: italic;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#F48FB1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>My Sweet Diary 🎀</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Pacifico&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* ── VARIABLES ───────────────────────────────────────────── */
+:root{
+  --a1:#F472B6;--a2:#C084FC;--a3:#FB7185;--a4:#FBBF24;
+  --bg:#FFF5F8;--surface:rgba(255,255,255,.88);--surface2:rgba(255,255,255,.65);
+  --border:rgba(244,143,177,.25);--border2:rgba(244,143,177,.4);
+  --t1:#3D1535;--t2:#8B4B6B;--t3:#C28DAA;
+  --shadow-sm:0 2px 12px rgba(228,64,151,.10);
+  --shadow-md:0 6px 24px rgba(228,64,151,.16);
+  --shadow-lg:0 16px 44px rgba(228,64,151,.22);
+  --r-sm:14px;--r-md:20px;--r-lg:28px;--r-xl:40px;
+  --spring:cubic-bezier(.34,1.56,.64,1);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --nav-h:72px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0E0710;--surface:rgba(25,10,20,.92);--surface2:rgba(35,12,28,.8);
+  --border:rgba(244,143,177,.18);--border2:rgba(244,143,177,.3);
+  --t1:#FFD6EA;--t2:#F0A0C0;--t3:#9E6B85;
+  --shadow-sm:0 2px 12px rgba(0,0,0,.5);
+  --shadow-md:0 6px 24px rgba(0,0,0,.6);
+  --shadow-lg:0 16px 44px rgba(0,0,0,.7);
+}}
+
+/* ── BASE ────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:'Quicksand',sans-serif;background:var(--bg);color:var(--t1);
+  min-height:100vh;overflow-x:hidden;transition:background .4s var(--ease)}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 60% 50% at 15% 15%,rgba(244,143,177,.13) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 60% at 85% 85%,rgba(192,132,252,.10) 0%,transparent 60%);z-index:0}
+::-webkit-scrollbar{width:0}
+
+/* ── KEYFRAMES ───────────────────────────────────────────── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes slideUp{from{opacity:0;transform:translateY(32px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes bounceIn{0%{transform:scale(.3);opacity:0}55%{transform:scale(1.06)}75%{transform:scale(.96)}100%{transform:scale(1);opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes pulseRing{0%{transform:translate(-50%,-50%) scale(1);opacity:.6}100%{transform:translate(-50%,-50%) scale(1.65);opacity:0}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+@keyframes dotPop{0%{transform:scale(.4)}60%{transform:scale(1.3)}100%{transform:scale(1)}}
+@keyframes heartFloat{0%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(0);opacity:0}}
+@keyframes tabIn{from{opacity:0;transform:translateX(var(--dir,30px))}to{opacity:1;transform:none}}
+@keyframes timelineIn{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
+@keyframes celebIn{from{opacity:0;transform:translateY(40px) scale(.88)}to{opacity:1;transform:none}}
+@keyframes noteReveal{0%{clip-path:inset(0 100% 0 0)}100%{clip-path:inset(0 0% 0 0)}}
+@keyframes countIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes moodPop{0%{transform:scale(.5) rotate(-15deg);opacity:0}60%{transform:scale(1.2) rotate(5deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes floatUp{0%{transform:translateY(110vh) rotate(0);opacity:0}8%{opacity:.13}92%{opacity:.13}100%{transform:translateY(-10vh) rotate(360deg);opacity:0}}
+@keyframes ripple{to{transform:scale(4);opacity:0}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes slideInBottom{from{transform:translateY(100%)}to{transform:translateY(0)}}
+
+/* ── FLOATIES ────────────────────────────────────────────── */
+#floaties{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.floatie{position:absolute;opacity:0;animation:floatUp linear infinite;user-select:none}
+
+/* ── GLASS CARD ──────────────────────────────────────────── */
+.glass{background:var(--surface);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border:1.5px solid var(--border);border-radius:var(--r-xl);box-shadow:var(--shadow-lg)}
+
+/* ── BUTTONS ─────────────────────────────────────────────── */
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;
+  border:none;cursor:pointer;font-family:'Quicksand',sans-serif;font-weight:700;
+  transition:transform .18s var(--spring),box-shadow .18s var(--ease),opacity .2s}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none!important}
+.btn-primary{background:linear-gradient(135deg,var(--a1),#E91E8C);color:#fff;
+  padding:14px 28px;border-radius:50px;font-size:1.05rem;
+  box-shadow:0 4px 0 #C2185B,var(--shadow-sm);position:relative;overflow:hidden}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 0 #C2185B,var(--shadow-md)}
+.btn-primary:active{transform:translateY(1px);box-shadow:0 2px 0 #C2185B}
+.btn-ghost{background:var(--surface2);color:var(--a1);padding:8px 16px;
+  border-radius:50px;font-size:.85rem;border:1.5px solid var(--border)}
+.btn-ghost:hover{background:rgba(244,143,177,.15);border-color:var(--a1)}
+.btn-icon{background:none;border:none;cursor:pointer;padding:8px;border-radius:50%;
+  font-size:1.3rem;color:var(--t2);transition:transform .2s var(--spring),color .2s}
+.btn-icon:hover{color:var(--a1);transform:scale(1.15)}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.35);
+  transform:scale(0);animation:ripple .5s ease-out;pointer-events:none}
+
+/* ── LOADING ─────────────────────────────────────────────── */
+#load{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;background:var(--bg);
+  transition:opacity .4s var(--ease)}
+#load.out{opacity:0;pointer-events:none}
+.load-icon{font-size:3.5rem;animation:heartbeat 1.1s ease-in-out infinite;margin-bottom:14px}
+.load-text{color:var(--t2);font-size:.95rem;font-weight:600}
+
+/* ── LOGIN ───────────────────────────────────────────────── */
+#login{display:none;flex-direction:column;justify-content:center;align-items:center;
+  min-height:100vh;padding:24px;position:relative;z-index:10}
+#login.on{display:flex;animation:fadeIn .5s var(--ease)}
+.login-card{padding:44px 36px 36px;max-width:340px;width:100%;text-align:center}
+.login-emoji{font-size:4.5rem;display:block;margin-bottom:8px;
+  animation:float 3s ease-in-out infinite,heartbeat 2s ease-in-out infinite}
+.login-card h1{font-family:'Pacifico',cursive;color:var(--a1);font-size:2.3rem;margin:0 0 10px}
+.login-card p{color:var(--t2);font-size:.95rem;line-height:1.55;margin:0 0 18px}
+.login-q{font-family:'Dancing Script',cursive;font-size:1.6rem;color:var(--t1);
+  line-height:1.35;margin:0 0 28px}
+.btn-zone{position:relative;height:56px;display:flex;justify-content:center;align-items:center}
+#btn-si{padding:14px 40px}
+#btn-no{position:fixed;background:rgba(220,220,220,.75);color:#aaa;border:none;
+  padding:10px 20px;border-radius:50px;cursor:pointer;z-index:200;
+  font-family:'Quicksand',sans-serif;font-weight:700;font-size:.9rem;
+  backdrop-filter:blur(6px);white-space:nowrap;transition:left .13s ease,top .13s ease}
+
+/* ── PIN ─────────────────────────────────────────────────── */
+#pin{display:none;flex-direction:column;justify-content:center;align-items:center;
+  min-height:100vh;padding:24px;position:relative;z-index:10}
+#pin.on{display:flex;animation:fadeIn .4s var(--ease)}
+.pin-card{padding:40px 30px 30px;max-width:320px;width:100%;text-align:center}
+.pin-icon{font-size:2.8rem;margin-bottom:14px}
+.pin-card h2{font-family:'Pacifico',cursive;color:var(--a1);font-size:1.5rem;margin:0 0 8px}
+.pin-card p{color:var(--t2);font-size:.9rem;margin:0 0 26px}
+.pin-dots{display:flex;gap:18px;justify-content:center;margin-bottom:28px}
+.dot{width:15px;height:15px;border-radius:50%;border:2px solid var(--a1);background:transparent;transition:background .2s}
+.dot.on{background:var(--a1);animation:dotPop .25s var(--spring)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.k{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-md);
+  padding:15px 10px;font-family:'Quicksand',sans-serif;font-size:1.25rem;font-weight:700;
+  color:var(--t1);cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .15s var(--spring),background .15s}
+.k:active{transform:scale(.9);background:rgba(244,143,177,.2)}
+.k.del{color:var(--a1);font-size:1.1rem}
+.pin-err{color:#e74c3c;font-size:.85rem;margin-top:12px;min-height:20px;opacity:0;transition:opacity .2s}
+.pin-err.on{opacity:1}
+.pin-card.shake{animation:shake .4s ease}
+
+/* ── APP SHELL ───────────────────────────────────────────── */
+#app{display:none;width:100%;max-width:480px;position:relative;z-index:10;
+  padding-bottom:var(--nav-h)}
+#app.on{display:block}
+
+/* ── HEADER ──────────────────────────────────────────────── */
+.app-header{text-align:center;padding:24px 16px 14px;position:relative}
+.app-title{font-family:'Pacifico',cursive;color:var(--a1);font-size:2.4rem;
+  margin:0 0 8px;text-shadow:0 2px 10px rgba(244,143,177,.3);cursor:default;
+  -webkit-user-select:none;user-select:none}
+.day-pill{display:inline-block;background:linear-gradient(135deg,var(--a1),var(--a2));
+  color:#fff;font-size:.82rem;font-weight:700;padding:5px 18px;border-radius:50px;
+  box-shadow:var(--shadow-sm);letter-spacing:.02em}
+
+/* ── SCREENS ─────────────────────────────────────────────── */
+.screens{position:relative;overflow:hidden}
+.screen{display:none;padding:0 16px;animation:tabIn .32s var(--ease) forwards}
+.screen.active{display:block}
+
+/* ── BOTTOM NAV ──────────────────────────────────────────── */
+.bot-nav{position:fixed;bottom:0;left:0;width:100%;height:var(--nav-h);
+  background:var(--surface);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  border-top:1.5px solid var(--border);box-shadow:0 -3px 18px rgba(0,0,0,.08);
+  display:flex;justify-content:space-around;align-items:center;
+  padding-bottom:max(4px,env(safe-area-inset-bottom));z-index:100}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;color:var(--t3);padding:8px 4px;border-radius:var(--r-sm);
+  transition:color .22s var(--ease),transform .22s var(--spring)}
+.nav-btn .ni{font-size:1.45rem;transition:transform .22s var(--spring)}
+.nav-btn span{font-size:.65rem;font-weight:700;letter-spacing:.03em}
+.nav-btn:hover{color:rgba(244,143,177,.7)}
+.nav-btn.active{color:var(--a1)}
+.nav-btn.active .ni{transform:translateY(-3px) scale(1.12)}
+
+/* ── INPUT CARD ──────────────────────────────────────────── */
+.input-card{background:var(--surface);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1.5px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-md);
+  padding:18px;margin-bottom:20px}
+.input-card textarea{width:100%;background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:var(--r-md);padding:12px 14px;font-family:'Quicksand',sans-serif;
+  font-size:.95rem;color:var(--t1);resize:none;line-height:1.65;margin-bottom:12px;
+  transition:border-color .2s,box-shadow .2s}
+.input-card textarea:focus{outline:none;border-color:var(--a1);box-shadow:0 0 0 3px rgba(244,143,177,.18)}
+.input-card textarea::placeholder{color:var(--t3)}
+.tools-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.stickers{display:flex;gap:5px;flex-wrap:wrap}
+.stk{font-size:1.4rem;cursor:pointer;opacity:.35;padding:4px;border-radius:8px;
+  transition:opacity .2s,transform .2s var(--spring)}
+.stk.on{opacity:1;transform:scale(1.3);filter:drop-shadow(0 2px 5px rgba(244,143,177,.5))}
+.stk:hover:not(.on){opacity:.65;transform:scale(1.1)}
+.photo-label{display:inline-flex;align-items:center;gap:5px;color:var(--a1);font-weight:700;
+  font-size:.82rem;cursor:pointer;background:rgba(244,143,177,.12);
+  padding:7px 13px;border-radius:50px;border:1.5px solid var(--border);
+  transition:background .18s,border-color .18s}
+.photo-label:hover{background:rgba(244,143,177,.22);border-color:var(--a1)}
+.photo-label input{display:none}
+.photo-preview{width:100%;border-radius:var(--r-md);max-height:180px;object-fit:cover;margin-bottom:8px;display:none}
+.photo-clear{background:none;border:none;color:var(--a1);cursor:pointer;font-weight:700;font-size:.82rem;display:none}
+
+/* ── DIARY TOGGLE ────────────────────────────────────────── */
+.view-toggle{display:flex;background:var(--surface2);border-radius:50px;padding:3px;
+  margin-bottom:16px;border:1.5px solid var(--border)}
+.vt-btn{flex:1;padding:8px;border-radius:50px;border:none;cursor:pointer;font-family:'Quicksand',sans-serif;
+  font-size:.82rem;font-weight:700;color:var(--t2);background:none;transition:all .2s var(--ease)}
+.vt-btn.on{background:var(--a1);color:#fff;box-shadow:var(--shadow-sm)}
+
+/* ── POSTS ───────────────────────────────────────────────── */
+.post{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);padding:16px 16px 16px 20px;margin-bottom:12px;
+  position:relative;overflow:hidden;
+  transition:transform .2s var(--ease),box-shadow .2s}
+.post::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:linear-gradient(to bottom,var(--a1),var(--a2))}
+.post:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.post-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.post-date{font-size:.76rem;color:var(--t2);font-weight:700}
+.post-stk{font-size:1.25rem}
+.post-txt{line-height:1.7;color:var(--t1);font-size:.94rem;white-space:pre-wrap;word-break:break-word}
+.post-img{width:100%;border-radius:var(--r-md);margin-top:10px;object-fit:cover;max-height:280px;display:block;cursor:pointer}
+.posts-empty{text-align:center;color:var(--t3);padding:40px 20px;font-size:.95rem;line-height:1.9}
+
+/* ── TIMELINE ────────────────────────────────────────────── */
+.timeline{padding-left:28px;position:relative}
+.timeline::before{content:'';position:absolute;left:10px;top:0;bottom:0;
+  width:2px;background:linear-gradient(to bottom,var(--a1),var(--a2),transparent)}
+.tl-month{font-family:'Dancing Script',cursive;font-size:1.1rem;color:var(--a1);
+  font-weight:700;margin:18px 0 10px -16px;padding:4px 14px;
+  background:rgba(244,143,177,.12);border-radius:50px;display:inline-block}
+.tl-item{position:relative;margin-bottom:12px;animation:timelineIn .4s var(--ease)}
+.tl-dot{position:absolute;left:-24px;top:14px;width:12px;height:12px;border-radius:50%;
+  background:var(--a1);border:2.5px solid var(--bg);box-shadow:0 0 0 2px var(--a1)}
+
+/* ── GALLERY ─────────────────────────────────────────────── */
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;border-radius:var(--r-md);overflow:hidden}
+.gallery-item{aspect-ratio:1;overflow:hidden;cursor:pointer;position:relative}
+.gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .3s var(--ease)}
+.gallery-item:hover img{transform:scale(1.07)}
+.gallery-item .gal-stk{position:absolute;bottom:4px;right:4px;font-size:.9rem}
+.gallery-empty{text-align:center;color:var(--t3);padding:60px 20px;font-size:.95rem;line-height:1.9}
+
+/* ── LIGHTBOX ────────────────────────────────────────────── */
+#lightbox{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.95);
+  display:none;align-items:center;justify-content:center;flex-direction:column}
+#lightbox.on{display:flex;animation:fadeIn .22s ease}
+#lb-img{max-width:100vw;max-height:80vh;object-fit:contain;transition:transform .1s;touch-action:none;border-radius:var(--r-sm)}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);font-size:2rem;
+  color:rgba(255,255,255,.6);cursor:pointer;padding:12px;z-index:10;
+  transition:color .2s,transform .2s var(--spring)}
+.lb-nav:hover{color:#fff;transform:translateY(-50%) scale(1.2)}
+#lb-prev{left:8px}#lb-next{right:8px}
+#lb-close{position:absolute;top:16px;right:16px;color:rgba(255,255,255,.7);
+  font-size:1.8rem;cursor:pointer;padding:8px;z-index:10;transition:color .2s,transform .2s var(--spring)}
+#lb-close:hover{color:#fff;transform:rotate(90deg)}
+#lb-counter{position:absolute;bottom:20px;color:rgba(255,255,255,.6);font-size:.85rem;font-weight:700}
+
+/* ── MOOD ────────────────────────────────────────────────── */
+.mood-today{text-align:center;padding:24px 20px}
+.mood-title{font-family:'Dancing Script',cursive;font-size:1.4rem;color:var(--t1);margin-bottom:20px;font-weight:700}
+.mood-emojis{display:flex;justify-content:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.mood-btn{font-size:2.2rem;cursor:pointer;padding:10px;border-radius:var(--r-md);border:2px solid transparent;
+  transition:transform .2s var(--spring),border-color .2s,background .2s;background:none}
+.mood-btn:hover{transform:scale(1.15)}
+.mood-btn.on{border-color:var(--a1);background:rgba(244,143,177,.15);
+  transform:scale(1.2);animation:moodPop .3s var(--spring)}
+.mood-note{width:100%;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-md);
+  padding:10px 14px;font-family:'Quicksand',sans-serif;font-size:.9rem;color:var(--t1);resize:none;margin-bottom:12px}
+.mood-note:focus{outline:none;border-color:var(--a1)}
+.chart-wrap{padding:16px 20px 20px}
+.chart-title{font-family:'Dancing Script',cursive;font-size:1.1rem;color:var(--t1);margin-bottom:12px;font-weight:700}
+.mood-chart{width:100%;overflow:visible}
+.mood-history{padding:0 20px 20px}
+.mood-history-title{font-size:.82rem;font-weight:700;color:var(--t3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em}
+.mood-entry{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--r-md);
+  margin-bottom:6px;background:var(--surface2)}
+.me-emoji{font-size:1.3rem}
+.me-date{font-size:.78rem;color:var(--t2);flex:1}
+.me-note{font-size:.82rem;color:var(--t1);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── SPECIAL DATES ───────────────────────────────────────── */
+.dates-list{display:flex;flex-direction:column;gap:12px}
+.date-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);padding:16px 18px;display:flex;align-items:center;gap:14px;
+  position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.date-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.date-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--card-color,var(--a1))}
+.date-emoji{font-size:2rem}
+.date-info{flex:1}
+.date-name{font-weight:700;font-size:.95rem;color:var(--t1);margin-bottom:3px}
+.date-when{font-size:.78rem;color:var(--t2)}
+.date-countdown{text-align:right}
+.countdown-num{font-family:'Dancing Script',cursive;font-size:1.6rem;color:var(--a1);font-weight:700;line-height:1}
+.countdown-label{font-size:.68rem;color:var(--t3);font-weight:700}
+.date-del{position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;
+  color:var(--t3);font-size:.9rem;opacity:0;transition:opacity .2s}
+.date-card:hover .date-del{opacity:1}
+.date-del:hover{color:#e74c3c}
+.dates-empty{text-align:center;color:var(--t3);padding:40px 20px;font-size:.95rem;line-height:1.9}
+.add-date-form{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);
+  padding:18px;margin-bottom:16px;box-shadow:var(--shadow-sm)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-input{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--r-md);
+  padding:10px 13px;font-family:'Quicksand',sans-serif;font-size:.9rem;color:var(--t1);width:100%}
+.form-input:focus{outline:none;border-color:var(--a1)}
+.form-label{font-size:.8rem;font-weight:700;color:var(--t2);margin-bottom:4px;display:block}
+
+/* ── MUSIC ───────────────────────────────────────────────── */
+.music-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-md);overflow:hidden}
+.cd-area{text-align:center;padding:32px 20px 22px}
+.cd-wrap{position:relative;width:160px;height:160px;margin:0 auto 20px}
+.cd-disc{width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.45) 0%,transparent 28%),
+    conic-gradient(#FF6B9D 0deg,#CE93D8 50deg,#90CAF9 110deg,#80DEEA 160deg,#A5D6A7 210deg,#FFF176 260deg,#FFAB91 310deg,#FF6B9D 360deg);
+  box-shadow:0 10px 34px rgba(0,0,0,.4),inset 0 0 24px rgba(0,0,0,.28);
+  display:flex;align-items:center;justify-content:center}
+.cd-disc.spin{animation:spin 3.2s linear infinite}
+.cd-hole{width:46px;height:46px;border-radius:50%;background:var(--surface);
+  border:3.5px solid rgba(255,255,255,.6);box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.pulse-ring{position:absolute;top:50%;left:50%;width:160px;height:160px;
+  border-radius:50%;border:2px solid var(--a1);opacity:0;pointer-events:none}
+.cd-disc.spin~.pulse-ring{animation:pulseRing 2.1s ease-out infinite}
+.np-title{font-family:'Dancing Script',cursive;font-size:1.35rem;color:var(--t1);font-weight:700;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.np-sub{font-size:.8rem;color:var(--t2);margin-bottom:18px}
+.progress-wrap{margin-bottom:16px}
+.prog-bar{width:100%;height:5px;background:var(--border);border-radius:5px;cursor:pointer;margin-bottom:6px;position:relative}
+.prog-fill{height:100%;border-radius:5px;background:linear-gradient(to right,var(--a1),var(--a2));width:0%;position:relative;transition:width .1s linear}
+.prog-fill::after{content:'';position:absolute;right:-6px;top:-5px;width:14px;height:14px;
+  border-radius:50%;background:var(--a1);border:2.5px solid var(--surface);box-shadow:var(--shadow-sm);transition:opacity .2s}
+.prog-fill.z::after{opacity:0}
+.time-row{display:flex;justify-content:space-between;font-size:.72rem;color:var(--t3)}
+.ctrl-row{display:flex;align-items:center;justify-content:center;gap:16px}
+.ctrl{background:none;border:none;cursor:pointer;color:var(--t2);padding:10px;border-radius:50%;
+  font-size:1.2rem;transition:color .18s,transform .18s var(--spring)}
+.ctrl:hover{color:var(--a1);transform:scale(1.12)}
+.ctrl.main{width:56px;height:56px;font-size:1.35rem;border-radius:50%;
+  background:linear-gradient(135deg,var(--a1),#E91E8C);color:#fff;box-shadow:var(--shadow-md)}
+.ctrl.main:hover{transform:scale(1.08);box-shadow:var(--shadow-lg)}
+.playlist-area{border-top:1.5px solid var(--border);padding:18px 18px 14px}
+.pl-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.pl-header h3{font-family:'Dancing Script',cursive;font-size:1.1rem;color:var(--t1);margin:0;font-weight:700}
+.pl-empty{text-align:center;color:var(--t3);font-size:.88rem;padding:16px;line-height:1.7}
+.track{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r-md);
+  cursor:pointer;margin-bottom:4px;transition:background .15s}
+.track:hover{background:rgba(244,143,177,.1)}
+.track.on{background:linear-gradient(135deg,rgba(244,143,177,.18),rgba(192,132,252,.13));border:1.5px solid var(--border)}
+.t-num{font-size:.76rem;color:var(--t3);width:20px;text-align:center;flex-shrink:0}
+.track.on .t-num{color:var(--a1);font-size:.95rem}
+.t-meta{flex:1;min-width:0}
+.t-name{font-size:.88rem;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track.on .t-name{color:var(--a1)}
+.t-dur{font-size:.72rem;color:var(--t3)}
+.t-del{background:none;border:none;cursor:pointer;color:var(--t3);font-size:.85rem;
+  padding:5px;border-radius:50%;opacity:0;transition:opacity .15s,color .15s}
+.track:hover .t-del{opacity:1}
+.t-del:hover{color:#e74c3c}
+#mfi{display:none}
+
+/* ── LOVE NOTES ──────────────────────────────────────────── */
+.note-card{background:linear-gradient(135deg,rgba(244,143,177,.15),rgba(192,132,252,.12));
+  border:1.5px solid var(--border2);border-radius:var(--r-lg);padding:20px;margin-bottom:12px;
+  box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.note-date-badge{display:inline-block;background:var(--a1);color:#fff;font-size:.72rem;
+  font-weight:700;padding:3px 10px;border-radius:50px;margin-bottom:10px}
+.note-text{font-family:'Dancing Script',cursive;font-size:1.1rem;color:var(--t1);line-height:1.7}
+.note-locked{text-align:center;padding:20px;color:var(--t3)}
+.note-locked-icon{font-size:2rem;display:block;margin-bottom:8px;animation:heartbeat 2s infinite}
+.notes-empty{text-align:center;color:var(--t3);padding:40px 20px;font-size:.95rem;line-height:1.9}
+
+/* ── ADMIN PANEL ─────────────────────────────────────────── */
+#admin-sheet{position:fixed;bottom:0;left:0;width:100%;max-width:480px;left:50%;transform:translateX(-50%) translateY(100%);
+  z-index:250;background:var(--surface);border-top:1.5px solid var(--border2);
+  border-radius:var(--r-xl) var(--r-xl) 0 0;box-shadow:var(--shadow-lg);
+  padding:20px 20px 40px;transition:transform .4s var(--spring)}
+#admin-sheet.on{transform:translateX(-50%) translateY(0)}
+.sheet-handle{width:40px;height:4px;background:var(--border2);border-radius:4px;margin:0 auto 18px}
+.sheet-title{font-family:'Dancing Script',cursive;font-size:1.3rem;color:var(--a1);font-weight:700;margin-bottom:16px;text-align:center}
+.admin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:249;display:none;backdrop-filter:blur(3px)}
+#admin-overlay.on{display:block}
+
+/* ── CELEBRATION MODAL ───────────────────────────────────── */
+#celeb{position:fixed;inset:0;z-index:310;display:none;
+  align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px)}
+#celeb.on{display:flex;animation:fadeIn .3s ease}
+.celeb-card{background:var(--surface);border-radius:var(--r-xl);padding:40px 32px;max-width:340px;width:100%;
+  text-align:center;box-shadow:var(--shadow-lg);animation:celebIn .5s var(--spring)}
+.celeb-emoji{font-size:4rem;display:block;animation:float 2s ease-in-out infinite;margin-bottom:12px}
+.celeb-title{font-family:'Pacifico',cursive;color:var(--a1);font-size:1.8rem;margin:0 0 10px}
+.celeb-text{color:var(--t2);font-size:.95rem;line-height:1.6;margin:0 0 24px}
+.celeb-days{font-family:'Dancing Script',cursive;font-size:2.5rem;color:var(--a2);font-weight:700}
+
+/* ── NOTE REVEAL MODAL ───────────────────────────────────── */
+#note-reveal{position:fixed;inset:0;z-index:310;display:none;
+  align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.7);backdrop-filter:blur(10px)}
+#note-reveal.on{display:flex;animation:fadeIn .3s ease}
+.reveal-card{background:linear-gradient(135deg,var(--surface),rgba(244,143,177,.2));
+  border:1.5px solid var(--border2);border-radius:var(--r-xl);padding:36px 28px;
+  max-width:340px;width:100%;text-align:center;box-shadow:var(--shadow-lg);
+  animation:celebIn .5s var(--spring)}
+.reveal-header{font-family:'Pacifico',cursive;color:var(--a1);font-size:1.6rem;margin:0 0 20px}
+.reveal-text{font-family:'Dancing Script',cursive;font-size:1.2rem;color:var(--t1);
+  line-height:1.8;margin-bottom:24px;animation:noteReveal .8s ease .3s both}
+.reveal-from{font-size:.85rem;color:var(--t2);font-style:italic;margin-bottom:20px}
+
+/* ── TOAST ───────────────────────────────────────────────── */
+#toast{position:fixed;bottom:calc(var(--nav-h) + 10px);left:50%;
+  transform:translateX(-50%) translateY(10px);
+  background:var(--t1);color:var(--bg);padding:10px 22px;border-radius:50px;
+  font-size:.83rem;font-weight:700;opacity:0;pointer-events:none;z-index:400;
+  white-space:nowrap;box-shadow:var(--shadow-md);transition:opacity .28s,transform .28s var(--spring)}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── PWA INSTALL BANNER ──────────────────────────────────── */
+#install-banner{position:fixed;bottom:calc(var(--nav-h) + 12px);left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;
+  padding:12px 20px;border-radius:var(--r-xl);box-shadow:var(--shadow-lg);
+  display:none;align-items:center;gap:12px;z-index:150;animation:slideUp .4s var(--spring)}
+#install-banner.on{display:flex}
+#install-banner span{font-size:.88rem;font-weight:700}
+.ib-btn{background:rgba(255,255,255,.3);border:none;color:#fff;padding:6px 14px;
+  border-radius:50px;cursor:pointer;font-family:'Quicksand',sans-serif;font-weight:700;font-size:.82rem}
+.ib-close{background:none;border:none;color:rgba(255,255,255,.8);cursor:pointer;font-size:1.1rem;padding:4px}
+
+/* ── PRINT ───────────────────────────────────────────────── */
+#print-tpl{display:none}
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body>*:not(#print-tpl){display:none!important}
+  #print-tpl{display:block!important;font-family:Georgia,serif;max-width:680px;margin:0 auto;padding:40px;color:#333}
+  .pt-header{text-align:center;border-bottom:3px solid #F48FB1;padding-bottom:22px;margin-bottom:30px}
+  .pt-header h1{font-family:Georgia,serif;font-size:2.2rem;color:#F48FB1;margin:0 0 6px}
+  .pt-header p{color:#9E6B85;font-size:.9rem;margin:0;font-style:italic}
+  .pt-post{page-break-inside:avoid;margin-bottom:26px;padding:18px 22px;
+    border:1px solid #FFB3CC;border-left:5px solid #F48FB1;border-radius:10px;background:#FFF5F8!important}
+  .pt-phdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .pt-pdate{font-size:.8rem;color:#F48FB1;font-weight:bold}
+  .pt-pstk{font-size:1.3rem}
+  .pt-ptxt{line-height:1.9;font-size:.95rem;white-space:pre-wrap;word-break:break-word}
+  .pt-pimg{max-width:100%;border-radius:8px;margin-top:10px}
+  .pt-footer{text-align:center;margin-top:38px;padding-top:18px;border-top:2px solid #FFB3CC;color:#9E6B85;font-size:.88rem;font-style:italic}
+}
+
+/* ── SECTION HEADER ──────────────────────────────────────── */
+.sec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sec-title{font-family:'Dancing Script',cursive;font-size:1.15rem;color:var(--t1);margin:0;font-weight:700}
+
+/* UTILITY */
+.mt8{margin-top:8px}.mb16{margin-bottom:16px}.w100{width:100%}
+.screen-pad{padding-top:8px;padding-bottom:8px}
+
+/* ── NOTIFICATION DOT ────────────────────────────────────── */
+.notif-dot{position:absolute;top:6px;right:calc(50% - 18px);width:8px;height:8px;
+  border-radius:50%;background:#E91E8C;border:2px solid var(--bg);display:none}
+.notif-dot.on{display:block}
+</style>
 </head>
 <body>
 
-<!-- Floaties container -->
 <div id="floaties"></div>
 
-<!-- Loading -->
-<div id="loading-screen">
-    <div class="loading-emoji">🎀</div>
-    <div class="loading-text">Cargando tu rinconcito…</div>
+<!-- LOADING -->
+<div id="load">
+  <div class="load-icon">🎀</div>
+  <div class="load-text">Cargando tu rinconcito…</div>
 </div>
 
-<!-- Login -->
-<div id="login-section">
-    <div class="glass-card login-card">
-        <span class="login-emoji">🎀</span>
-        <h1>¡Hola!</h1>
-        <p>Para entrar a nuestro rincón secreto, responde:</p>
-        <div class="login-question">¿Quieres salir conmigo? 💕</div>
-        <div class="btn-zone">
-            <button class="btn-primary" id="btn-si" onclick="aceptar(this)">¡SÍ! ✨</button>
-        </div>
+<!-- LOGIN -->
+<div id="login">
+  <div class="glass login-card">
+    <span class="login-emoji">🎀</span>
+    <h1>¡Hola!</h1>
+    <p>Para entrar a nuestro rincón secreto, responde:</p>
+    <div class="login-q">¿Quieres salir conmigo? 💕</div>
+    <div class="btn-zone">
+      <button class="btn btn-primary" id="btn-si" onclick="aceptar(this)">¡SÍ! ✨</button>
     </div>
-    <button id="btn-no" onmouseover="huir()" ontouchstart="huir()">No</button>
+  </div>
+  <button id="btn-no" onmouseover="huir()" ontouchstart="huir()">No</button>
 </div>
 
 <!-- PIN -->
-<div id="pin-section">
-    <div class="glass-card pin-card" id="pin-card">
-        <div class="pin-icon">🔐</div>
-        <h2 id="pin-title">Crea tu PIN</h2>
-        <p id="pin-desc">Elige 4 números para proteger tu diario</p>
-
-        <div class="pin-dots">
-            <div class="pin-dot" id="d0"></div>
-            <div class="pin-dot" id="d1"></div>
-            <div class="pin-dot" id="d2"></div>
-            <div class="pin-dot" id="d3"></div>
-        </div>
-
-        <div class="pin-keypad">
-            <button class="pin-key" onclick="pinKey('1')">1</button>
-            <button class="pin-key" onclick="pinKey('2')">2</button>
-            <button class="pin-key" onclick="pinKey('3')">3</button>
-            <button class="pin-key" onclick="pinKey('4')">4</button>
-            <button class="pin-key" onclick="pinKey('5')">5</button>
-            <button class="pin-key" onclick="pinKey('6')">6</button>
-            <button class="pin-key" onclick="pinKey('7')">7</button>
-            <button class="pin-key" onclick="pinKey('8')">8</button>
-            <button class="pin-key" onclick="pinKey('9')">9</button>
-            <button class="pin-key" onclick="pinKey('0')">0</button>
-            <button class="pin-key del" onclick="pinBack()">⌫</button>
-        </div>
-
-        <div class="pin-error hidden" id="pin-error">PIN incorrecto. Inténtalo de nuevo 💕</div>
+<div id="pin">
+  <div class="glass pin-card" id="pin-card">
+    <div class="pin-icon">🔐</div>
+    <h2 id="pin-title">Crea tu PIN</h2>
+    <p id="pin-desc">Elige 4 números para proteger tu diario</p>
+    <div class="pin-dots">
+      <div class="dot" id="d0"></div><div class="dot" id="d1"></div>
+      <div class="dot" id="d2"></div><div class="dot" id="d3"></div>
     </div>
+    <div class="keypad">
+      <button class="k" onclick="pk('1')">1</button>
+      <button class="k" onclick="pk('2')">2</button>
+      <button class="k" onclick="pk('3')">3</button>
+      <button class="k" onclick="pk('4')">4</button>
+      <button class="k" onclick="pk('5')">5</button>
+      <button class="k" onclick="pk('6')">6</button>
+      <button class="k" onclick="pk('7')">7</button>
+      <button class="k" onclick="pk('8')">8</button>
+      <button class="k" onclick="pk('9')">9</button>
+      <button class="k" onclick="pk('0')">0</button>
+      <button class="k del" onclick="pb()">⌫</button>
+    </div>
+    <div class="pin-err" id="pin-err"></div>
+  </div>
 </div>
 
-<!-- App -->
-<div id="app-container">
-    <header>
-        <div class="header-title">My Sweet Diary</div>
-        <span id="counter"></span>
-    </header>
+<!-- APP -->
+<div id="app">
+  <div class="app-header">
+    <div class="app-title" id="app-title">My Sweet Diary</div>
+    <span class="day-pill" id="counter"></span>
+  </div>
 
-    <!-- Diary Tab -->
-    <div id="tab-diary">
+  <div class="screens">
+    <!-- DIARY -->
+    <div class="screen active" id="s-diary" data-idx="0">
+      <div class="view-toggle mb16">
+        <button class="vt-btn on" id="vt-write" onclick="setView('write')">✏️ Escribir</button>
+        <button class="vt-btn" id="vt-timeline" onclick="setView('timeline')">📜 Línea del tiempo</button>
+      </div>
+      <div id="v-write">
         <div class="input-card">
-            <textarea id="msg-text" rows="4" placeholder="Escribe un nuevo recuerdo… 🌸"></textarea>
-
-            <div class="tools">
-                <div class="sticker-row" id="stickers">
-                    <span class="sticker active" onclick="pickSticker(this)">🌸</span>
-                    <span class="sticker" onclick="pickSticker(this)">🎀</span>
-                    <span class="sticker" onclick="pickSticker(this)">🍓</span>
-                    <span class="sticker" onclick="pickSticker(this)">✨</span>
-                    <span class="sticker" onclick="pickSticker(this)">💕</span>
-                    <span class="sticker" onclick="pickSticker(this)">🌙</span>
-                </div>
-                <label class="file-upload-label">
-                    📷 Foto
-                    <input type="file" id="img-upload" accept="image/*" onchange="previewPhoto(this)">
-                </label>
+          <textarea id="msg" rows="4" placeholder="Escribe un nuevo recuerdo… 🌸"></textarea>
+          <div class="tools-row">
+            <div class="stickers" id="stickers">
+              <span class="stk on" onclick="pickStk(this)">🌸</span>
+              <span class="stk" onclick="pickStk(this)">🎀</span>
+              <span class="stk" onclick="pickStk(this)">🍓</span>
+              <span class="stk" onclick="pickStk(this)">✨</span>
+              <span class="stk" onclick="pickStk(this)">💕</span>
+              <span class="stk" onclick="pickStk(this)">🌙</span>
             </div>
-
-            <div id="photo-preview-wrap" style="display:none; margin-bottom:12px;">
-                <img id="photo-preview" style="width:100%;border-radius:14px;max-height:180px;object-fit:cover;">
-                <button onclick="clearPhoto()" style="margin-top:6px;background:none;border:none;color:var(--pink-400);cursor:pointer;font-weight:700;font-size:.85rem;">✕ Quitar foto</button>
-            </div>
-
-            <button class="btn-primary" id="post-btn" onclick="addPost(this)">Publicar 💌</button>
+            <label class="photo-label">
+              📷 Foto
+              <input type="file" accept="image/*" onchange="previewPic(this)">
+            </label>
+          </div>
+          <img class="photo-preview" id="pic-prev">
+          <button class="photo-clear" id="pic-clr" onclick="clearPic()">✕ Quitar foto</button>
+          <button class="btn btn-primary w100" id="post-btn" onclick="addPost(this)">Publicar 💌</button>
         </div>
-
-        <div id="posts-container"></div>
+        <div id="posts"></div>
+      </div>
+      <div id="v-timeline" style="display:none">
+        <div id="timeline-wrap"></div>
+      </div>
     </div>
 
-    <!-- Music Tab -->
-    <div id="tab-music">
-        <div class="music-card">
-            <div class="cd-player-area">
-                <div class="cd-wrapper">
-                    <div class="cd-disc" id="cd-disc">
-                        <div class="cd-hole"></div>
-                    </div>
-                    <div class="pulse-ring" id="pulse-ring"></div>
-                </div>
-
-                <div class="now-playing">
-                    <div class="np-title" id="np-title">Tu Mix Especial ☁️</div>
-                    <div class="np-subtitle" id="np-sub">Dale al play y acuérdate de mí ✨</div>
-                </div>
-
-                <div class="progress-wrap">
-                    <div class="progress-bar" id="progress-bar" onclick="seekTo(event)">
-                        <div class="progress-fill zero" id="progress-fill"></div>
-                    </div>
-                    <div class="time-row">
-                        <span id="t-cur">0:00</span>
-                        <span id="t-tot">0:00</span>
-                    </div>
-                </div>
-
-                <div class="controls">
-                    <button class="ctrl-btn" onclick="prevTrack()" title="Anterior">⏮</button>
-                    <button class="ctrl-btn main" id="play-btn" onclick="togglePlay()">▶</button>
-                    <button class="ctrl-btn" onclick="nextTrack()" title="Siguiente">⏭</button>
-                </div>
-            </div>
-
-            <div class="playlist-area">
-                <div class="playlist-header">
-                    <h3>💿 Tu Mix Especial</h3>
-                    <button class="btn-add-song" onclick="document.getElementById('music-file-input').click()">
-                        + Añadir canciones
-                    </button>
-                    <input type="file" id="music-file-input" accept="audio/*" multiple>
-                </div>
-                <div id="playlist"></div>
-            </div>
-        </div>
+    <!-- GALLERY -->
+    <div class="screen" id="s-gallery" data-idx="1">
+      <div class="sec-hdr screen-pad">
+        <h3 class="sec-title">📸 Galería de recuerdos</h3>
+      </div>
+      <div class="gallery-grid" id="gallery-grid"></div>
+      <div id="gallery-empty" class="gallery-empty" style="display:none">
+        Aún no hay fotos 📷<br><span style="font-size:.85rem">Añade una imagen a tu primera entrada ✨</span>
+      </div>
     </div>
 
-    <!-- Bottom nav -->
-    <nav class="bottom-nav">
-        <div class="nav-item active" id="nav-diary" onclick="switchTab('diary')">
-            📖 <span class="nav-label">Diario</span>
+    <!-- MOOD -->
+    <div class="screen" id="s-mood" data-idx="2">
+      <div class="glass mb16" style="overflow:hidden">
+        <div class="mood-today">
+          <div class="mood-title">¿Cómo te sientes hoy? 💭</div>
+          <div class="mood-emojis">
+            <button class="mood-btn" data-mood="1" onclick="pickMood(1)">😢</button>
+            <button class="mood-btn" data-mood="2" onclick="pickMood(2)">😕</button>
+            <button class="mood-btn" data-mood="3" onclick="pickMood(3)">😐</button>
+            <button class="mood-btn" data-mood="4" onclick="pickMood(4)">😊</button>
+            <button class="mood-btn" data-mood="5" onclick="pickMood(5)">🥰</button>
+          </div>
+          <textarea class="mood-note" id="mood-note" rows="2" placeholder="Una nota sobre tu día… (opcional)"></textarea>
+          <button class="btn btn-primary w100" onclick="saveMood()">Guardar ánimo 💕</button>
         </div>
-        <div class="nav-item" id="nav-music" onclick="switchTab('music')">
-            💿 <span class="nav-label">Música</span>
+        <div class="chart-wrap" style="border-top:1.5px solid var(--border)">
+          <div class="chart-title">Últimos 7 días</div>
+          <div id="mood-chart"></div>
         </div>
-    </nav>
+      </div>
+      <div class="glass mood-history" id="mood-history"></div>
+    </div>
+
+    <!-- DATES -->
+    <div class="screen" id="s-dates" data-idx="3">
+      <div class="add-date-form" id="add-date-form">
+        <div class="sec-hdr">
+          <h3 class="sec-title">🗓 Nueva fecha especial</h3>
+        </div>
+        <div class="form-row">
+          <div>
+            <label class="form-label">Nombre</label>
+            <input class="form-input" id="d-name" placeholder="Primer beso…">
+          </div>
+          <div>
+            <label class="form-label">Emoji</label>
+            <input class="form-input" id="d-emoji" placeholder="💋" maxlength="2" style="text-align:center;font-size:1.3rem">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label class="form-label">Fecha</label>
+            <input class="form-input" id="d-date" type="date">
+          </div>
+          <div>
+            <label class="form-label">Color</label>
+            <input class="form-input" id="d-color" type="color" value="#F472B6" style="height:42px;padding:4px;cursor:pointer">
+          </div>
+        </div>
+        <button class="btn btn-primary w100" onclick="addDate()">Añadir fecha 🗓</button>
+      </div>
+      <div class="dates-list" id="dates-list"></div>
+    </div>
+
+    <!-- MUSIC -->
+    <div class="screen" id="s-music" data-idx="4">
+      <div class="music-card">
+        <div class="cd-area">
+          <div class="cd-wrap">
+            <div class="cd-disc" id="cd">
+              <div class="cd-hole"></div>
+            </div>
+            <div class="pulse-ring"></div>
+          </div>
+          <div class="np-title" id="np-title">Tu Mix Especial ☁️</div>
+          <div class="np-sub" id="np-sub">Dale al play y acuérdate de mí ✨</div>
+          <div class="progress-wrap">
+            <div class="prog-bar" onclick="seekTo(event)">
+              <div class="prog-fill z" id="prog"></div>
+            </div>
+            <div class="time-row"><span id="t-cur">0:00</span><span id="t-tot">0:00</span></div>
+          </div>
+          <div class="ctrl-row">
+            <button class="ctrl" onclick="prev()">⏮</button>
+            <button class="ctrl main" id="play-btn" onclick="togglePlay()">▶</button>
+            <button class="ctrl" onclick="next()">⏭</button>
+          </div>
+        </div>
+        <div class="playlist-area">
+          <div class="pl-header">
+            <h3>💿 Tu Mix Especial</h3>
+            <button class="btn btn-ghost" onclick="document.getElementById('mfi').click()">+ Añadir</button>
+          </div>
+          <input type="file" id="mfi" accept="audio/*" multiple>
+          <div id="playlist"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /screens -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bot-nav">
+    <div class="nav-btn active" id="nav-diary" onclick="goTab(0)">
+      <span class="ni">📖</span><span>Diario</span>
+    </div>
+    <div class="nav-btn" id="nav-gallery" onclick="goTab(1)">
+      <span class="ni">📸</span><span>Fotos</span>
+    </div>
+    <div class="nav-btn" id="nav-mood" onclick="goTab(2)">
+      <span class="ni">😊</span><span>Ánimo</span>
+      <div class="notif-dot" id="mood-dot"></div>
+    </div>
+    <div class="nav-btn" id="nav-dates" onclick="goTab(3)">
+      <span class="ni">🗓</span><span>Fechas</span>
+      <div class="notif-dot" id="dates-dot"></div>
+    </div>
+    <div class="nav-btn" id="nav-music" onclick="goTab(4)">
+      <span class="ni">💿</span><span>Música</span>
+    </div>
+  </nav>
+</div><!-- /app -->
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <div id="lb-close" onclick="closeLB()">✕</div>
+  <div id="lb-prev" class="lb-nav" onclick="lbNav(-1)">‹</div>
+  <img id="lb-img" src="" alt="">
+  <div id="lb-next" class="lb-nav" onclick="lbNav(1)">›</div>
+  <div id="lb-counter"></div>
 </div>
 
-<!-- Print template (hidden; shown only via @media print) -->
-<div id="print-template">
-    <div class="pt-header">
-        <h1>🎀 My Sweet Diary</h1>
-        <p id="pt-date"></p>
-    </div>
-    <div id="pt-posts"></div>
-    <div class="pt-footer">💕 Este diario es solo tuyo, escrito con amor.</div>
+<!-- CELEBRATION MODAL -->
+<div id="celeb">
+  <div class="celeb-card">
+    <span class="celeb-emoji" id="celeb-emoji">🎉</span>
+    <div class="celeb-title" id="celeb-title">¡Feliz Aniversario!</div>
+    <div class="celeb-text" id="celeb-text"></div>
+    <div class="celeb-days" id="celeb-days"></div>
+    <button class="btn btn-primary mt8" onclick="closeModal('celeb')" style="margin-top:20px">¡Gracias! 💕</button>
+  </div>
 </div>
 
-<!-- Toast -->
+<!-- NOTE REVEAL MODAL -->
+<div id="note-reveal">
+  <div class="reveal-card">
+    <div class="reveal-header">💌 Una nota para ti</div>
+    <div class="reveal-text" id="rv-text"></div>
+    <div class="reveal-from">Con amor, de tu persona favorita 🌸</div>
+    <button class="btn btn-primary" onclick="closeModal('note-reveal')">Cerrar con amor 💕</button>
+  </div>
+</div>
+
+<!-- ADMIN SHEET (triple-tap title) -->
+<div id="admin-overlay" onclick="closeAdmin()"></div>
+<div id="admin-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Modo Admin 🔑</div>
+  <div style="margin-bottom:10px">
+    <label class="form-label">Mensaje secreto 💌</label>
+    <textarea class="mood-note" id="admin-msg" rows="3" placeholder="Escribe una nota para ella…" style="margin-bottom:0"></textarea>
+  </div>
+  <div style="margin-bottom:12px">
+    <label class="form-label">Revelar el día</label>
+    <input class="form-input" id="admin-date" type="date" style="margin-bottom:0">
+  </div>
+  <button class="btn btn-primary w100" onclick="saveNote()">Guardar nota secreta 💕</button>
+</div>
+
+<!-- INSTALL BANNER -->
+<div id="install-banner">
+  <span>📲 Instala la app</span>
+  <button class="ib-btn" id="install-btn">Instalar</button>
+  <button class="ib-close" onclick="document.getElementById('install-banner').classList.remove('on')">✕</button>
+</div>
+
+<!-- PRINT TEMPLATE -->
+<div id="print-tpl">
+  <div class="pt-header">
+    <h1>🎀 My Sweet Diary</h1>
+    <p id="pt-date"></p>
+  </div>
+  <div id="pt-posts"></div>
+  <div class="pt-footer">💕 Este diario es solo tuyo, escrito con amor.</div>
+</div>
+
 <div id="toast"></div>
 
 <script>
 'use strict';
 // ================================================================
-//  CONSTANTS
+// STATE
 // ================================================================
-const DB_NAME    = 'SweetDiaryDB';
-const DB_VERSION = 1;
+const DB='SweetDiaryDB', DBV=2;
+let db=null, cryptoKey=null;
+let pinMode='setup', pinBuf='', pinFirst='';
+let needsMig=false, migData=null;
+let currentStk='🌸', picData=null, currentMood=0;
+let tabIdx=0;
+let tabs=['diary','gallery','mood','dates','music'];
+// music
+let audio=new Audio(), playlist=[], trkIdx=-1, playing=false;
+// gallery / lightbox
+let galleryImages=[], lbIdx=0, lbScale=1, lbStart=null;
+// admin
+let tapTimes=[];
+// install prompt
+let deferredPrompt=null;
 
 // ================================================================
-//  STATE
+// FLOATIES
 // ================================================================
-let db          = null;
-let cryptoKey   = null;          // AES-GCM key (derived from PIN)
-let pinMode     = 'setup';       // 'setup' | 'confirm' | 'verify'
-let pinBuf      = '';
-let pinFirst    = '';
-let needsMigration = false;
-let migrationPayload = null;
-let currentSticker = '🌸';
-let photoDataUrl = null;
-
-// Music
-let audioEl    = new Audio();
-let playlist   = [];
-let trackIndex = -1;
-let playing    = false;
-
-// ================================================================
-//  FLOATIES
-// ================================================================
-;(function spawnFloaties() {
-    const cont = document.getElementById('floaties');
-    const syms = ['🌸','✨','💕','🎀','⭐','🌙','🍓','🌟','💫'];
-    for (let i = 0; i < 14; i++) {
-        const el = document.createElement('div');
-        el.className = 'floatie';
-        el.textContent = syms[i % syms.length];
-        el.style.cssText = [
-            `left:${Math.random()*100}%`,
-            `font-size:${.7+Math.random()*.9}rem`,
-            `animation-duration:${16+Math.random()*22}s`,
-            `animation-delay:${Math.random()*24}s`
-        ].join(';');
-        cont.appendChild(el);
-    }
+;(()=>{
+  const c=document.getElementById('floaties');
+  const s=['🌸','✨','💕','🎀','⭐','🌙','🍓','🌟','💫','🦋'];
+  for(let i=0;i<14;i++){
+    const e=document.createElement('div');
+    e.className='floatie';
+    e.textContent=s[i%s.length];
+    e.style.cssText=`left:${Math.random()*100}%;font-size:${.7+Math.random()*.9}rem;animation-duration:${16+Math.random()*22}s;animation-delay:${Math.random()*24}s`;
+    c.appendChild(e);
+  }
 })();
 
 // ================================================================
-//  RIPPLE EFFECT
+// RIPPLE
 // ================================================================
-document.addEventListener('click', e => {
-    const btn = e.target.closest('.btn-primary');
-    if (!btn) return;
-    const r = document.createElement('span');
-    r.className = 'ripple';
-    const rect = btn.getBoundingClientRect();
-    const size = Math.max(rect.width, rect.height);
-    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
-    btn.appendChild(r);
-    r.addEventListener('animationend', () => r.remove());
+document.addEventListener('click',e=>{
+  const b=e.target.closest('.btn-primary');
+  if(!b)return;
+  const r=document.createElement('span'); r.className='ripple';
+  const rc=b.getBoundingClientRect(),sz=Math.max(rc.width,rc.height);
+  r.style.cssText=`width:${sz}px;height:${sz}px;left:${e.clientX-rc.left-sz/2}px;top:${e.clientY-rc.top-sz/2}px`;
+  b.appendChild(r); r.addEventListener('animationend',()=>r.remove());
 });
 
 // ================================================================
-//  INDEXEDDB
+// HAPTIC
 // ================================================================
-function openDB() {
-    return new Promise((res, rej) => {
-        const req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = ev => {
-            const d = ev.target.result;
-            if (!d.objectStoreNames.contains('settings'))
-                d.createObjectStore('settings', { keyPath: 'k' });
-            if (!d.objectStoreNames.contains('posts')) {
-                const ps = d.createObjectStore('posts', { keyPath: 'id', autoIncrement: true });
-                ps.createIndex('ts', 'ts');
-            }
-            if (!d.objectStoreNames.contains('music')) {
-                const ms = d.createObjectStore('music', { keyPath: 'id', autoIncrement: true });
-                ms.createIndex('ord', 'ord');
-            }
-        };
-        req.onsuccess = ev => res(ev.target.result);
-        req.onerror   = ()  => rej(req.error);
-    });
-}
+function hap(pattern=[20]){try{navigator.vibrate&&navigator.vibrate(pattern)}catch(e){}}
 
-const txRO = store => db.transaction(store, 'readonly').objectStore(store);
-const txRW = store => db.transaction(store, 'readwrite').objectStore(store);
-
-function dbGet(store, key) {
-    return new Promise((res, rej) => {
-        const r = txRO(store).get(key);
-        r.onsuccess = () => res(r.result);
-        r.onerror   = () => rej(r.error);
-    });
-}
-
-function dbPut(store, val) {
-    return new Promise((res, rej) => {
-        const r = txRW(store).put(val);
-        r.onsuccess = () => res(r.result);
-        r.onerror   = () => rej(r.error);
-    });
-}
-
-function dbDelete(store, key) {
-    return new Promise((res, rej) => {
-        const r = txRW(store).delete(key);
-        r.onsuccess = () => res();
-        r.onerror   = () => rej(r.error);
-    });
-}
-
-function dbAll(store) {
-    return new Promise((res, rej) => {
-        const r = txRO(store).getAll();
-        r.onsuccess = () => res(r.result);
-        r.onerror   = () => rej(r.error);
-    });
+// ================================================================
+// TOAST
+// ================================================================
+let toastT=null;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),2600);
 }
 
 // ================================================================
-//  ENCRYPTION  (AES-256-GCM via SubtleCrypto)
-//  Encrypted strings are prefixed with "ENC:" to distinguish them
-//  from plaintext (important for migrated old entries).
+// HEART PARTICLES
 // ================================================================
-const ENC_PREFIX = 'ENC:';
-
-async function deriveKey(pin, salt) {
-    const raw = await crypto.subtle.importKey(
-        'raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey']
-    );
-    return crypto.subtle.deriveKey(
-        { name: 'PBKDF2', salt, iterations: 120000, hash: 'SHA-256' },
-        raw,
-        { name: 'AES-GCM', length: 256 },
-        false, ['encrypt', 'decrypt']
-    );
-}
-
-async function encryptText(plain) {
-    if (!cryptoKey || !plain) return plain;
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const ct = await crypto.subtle.encrypt(
-        { name: 'AES-GCM', iv },
-        cryptoKey,
-        new TextEncoder().encode(plain)
-    );
-    const buf = new Uint8Array(12 + ct.byteLength);
-    buf.set(iv); buf.set(new Uint8Array(ct), 12);
-    return ENC_PREFIX + btoa(String.fromCharCode(...buf));
-}
-
-async function decryptText(cipher) {
-    if (!cryptoKey || !cipher) return cipher;
-    if (!cipher.startsWith(ENC_PREFIX)) return cipher; // legacy plaintext
-    try {
-        const buf  = new Uint8Array(atob(cipher.slice(ENC_PREFIX.length)).split('').map(c => c.charCodeAt(0)));
-        const dec  = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: buf.slice(0,12) }, cryptoKey, buf.slice(12));
-        return new TextDecoder().decode(dec);
-    } catch {
-        return '[entrada cifrada]';
-    }
-}
-
-async function savePinSetup(pin) {
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    cryptoKey  = await deriveKey(pin, salt);
-    const token = await encryptText('DIARY_OK_2025');
-    await dbPut('settings', { k: 'pin_salt',  v: btoa(String.fromCharCode(...salt)) });
-    await dbPut('settings', { k: 'pin_token', v: token });
-}
-
-async function verifyPinAttempt(pin) {
-    const saltRec  = await dbGet('settings', 'pin_salt');
-    const tokenRec = await dbGet('settings', 'pin_token');
-    if (!saltRec || !tokenRec) return false;
-    const salt  = new Uint8Array(atob(saltRec.v).split('').map(c => c.charCodeAt(0)));
-    const testKey = await deriveKey(pin, salt);
-    const prev  = cryptoKey;
-    cryptoKey   = testKey;
-    const dec   = await decryptText(tokenRec.v);
-    if (dec === 'DIARY_OK_2025') return true;
-    cryptoKey   = prev;
-    return false;
+function spawnHearts(x,y){
+  const syms=['❤️','💕','💖','🌸','✨','💗'];
+  for(let i=0;i<14;i++){
+    const e=document.createElement('div');
+    e.className='floatie'; // reuse floatie style but different
+    e.style.cssText=`position:fixed;left:${x}px;top:${y}px;pointer-events:none;z-index:9999;
+      font-size:${1+Math.random()*.8}rem;user-select:none;
+      animation:heartFloat ${.7+Math.random()*.6}s ease-out forwards;
+      --dx:${(Math.random()-.5)*180}px;--dy:${-60-Math.random()*120}px`;
+    e.textContent=syms[Math.floor(Math.random()*syms.length)];
+    document.body.appendChild(e);
+    e.addEventListener('animationend',()=>e.remove());
+  }
 }
 
 // ================================================================
-//  LOCALSTORAGE → INDEXEDDB MIGRATION
+// CONFETTI
 // ================================================================
-async function sniffLocalStorage() {
-    const isCouple  = localStorage.getItem('isCouple');
-    const fecha     = localStorage.getItem('fecha_novios');
-    const postsRaw  = localStorage.getItem('posts');
-    if (isCouple || fecha || postsRaw) {
-        migrationPayload = {
-            isCouple, fecha,
-            posts: postsRaw ? JSON.parse(postsRaw) : []
-        };
-        needsMigration = true;
-    }
-}
-
-async function performMigration() {
-    if (!migrationPayload) return;
-    const { isCouple, fecha, posts } = migrationPayload;
-
-    if (isCouple) await dbPut('settings', { k: 'isCouple', v: isCouple });
-    if (fecha)    await dbPut('settings', { k: 'fecha',    v: fecha    });
-
-    for (let i = posts.length - 1; i >= 0; i--) {
-        const p = posts[i];
-        const enc = await encryptText(p.text || '');
-        await dbPut('posts', {
-            text: enc,
-            sticker: p.sticker || '🌸',
-            date: p.date || new Date().toLocaleDateString('es-ES'),
-            image: p.image || null,
-            ts: Date.now() - i * 1000
-        });
-    }
-
-    // Wipe localStorage cleanly
-    localStorage.removeItem('isCouple');
-    localStorage.removeItem('fecha_novios');
-    localStorage.removeItem('posts');
-    needsMigration   = false;
-    migrationPayload = null;
+function confetti(){
+  const cv=document.createElement('canvas');
+  cv.style.cssText='position:fixed;inset:0;z-index:9998;pointer-events:none';
+  cv.width=window.innerWidth; cv.height=window.innerHeight;
+  document.body.appendChild(cv);
+  const ctx=cv.getContext('2d');
+  const cols=['#F472B6','#C084FC','#FB7185','#FBBF24','#34D399','#60A5FA'];
+  const pts=Array.from({length:90},()=>({
+    x:Math.random()*cv.width, y:-10,
+    w:5+Math.random()*7, h:9+Math.random()*5,
+    c:cols[Math.floor(Math.random()*cols.length)],
+    r:Math.random()*360, rs:(Math.random()-.5)*5,
+    sp:2+Math.random()*4, dx:(Math.random()-.5)*2
+  }));
+  let f=0;
+  (function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    pts.forEach(p=>{p.y+=p.sp;p.r+=p.rs;p.x+=p.dx;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r*Math.PI/180);
+      ctx.fillStyle=p.c;ctx.globalAlpha=Math.max(0,1-(f/150));
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore()});
+    if(++f<160)requestAnimationFrame(draw);else cv.remove();
+  })();
 }
 
 // ================================================================
-//  BOOT
+// INDEXEDDB
 // ================================================================
-async function boot() {
-    db = await openDB();
-    await sniffLocalStorage();
-
-    // Determine login state (IndexedDB first, then migration payload)
-    const coupleRec = await dbGet('settings', 'isCouple');
-    const isCouple  = coupleRec
-        ? coupleRec.v === 'true'
-        : (needsMigration && migrationPayload.isCouple === 'true');
-
-    // Fade out loading screen
-    const ls = document.getElementById('loading-screen');
-    ls.classList.add('hidden');
-    setTimeout(() => ls.style.display = 'none', 420);
-
-    if (!isCouple) {
-        showLogin();
-    } else {
-        const pinSalt = await dbGet('settings', 'pin_salt');
-        pinSalt ? showPinVerify() : showPinSetup();
-    }
-}
-
-// ================================================================
-//  LOGIN
-// ================================================================
-function showLogin() {
-    const ls = document.getElementById('login-section');
-    ls.classList.add('visible');
-    // Position "No" button near the "Sí" button after render
-    requestAnimationFrame(() => {
-        const si = document.getElementById('btn-si');
-        const r  = si.getBoundingClientRect();
-        const no = document.getElementById('btn-no');
-        no.style.left = (r.left - no.offsetWidth - 12) + 'px';
-        no.style.top  = (r.top + 8) + 'px';
-    });
-}
-
-function huir() {
-    const no = document.getElementById('btn-no');
-    const w  = no.offsetWidth  || 70;
-    const h  = no.offsetHeight || 38;
-    no.style.left = Math.max(8, Math.random() * (window.innerWidth  - w - 16)) + 'px';
-    no.style.top  = Math.max(8, Math.random() * (window.innerHeight - h - 16)) + 'px';
-}
-
-async function aceptar(btn) {
-    btn.textContent = '✨';
-    await dbPut('settings', { k: 'isCouple', v: 'true' });
-    await dbPut('settings', { k: 'fecha',    v: new Date().toISOString() });
-    document.getElementById('login-section').classList.remove('visible');
-    showPinSetup();
-}
-
-// ================================================================
-//  PIN SCREEN
-// ================================================================
-function showPinSetup() {
-    setPinUI('Crea tu PIN secreto', 'Elige 4 números para proteger tu diario 🔐');
-    pinMode = 'setup'; pinBuf = ''; pinFirst = '';
-    refreshDots();
-    document.getElementById('pin-section').classList.add('visible');
-}
-
-function showPinVerify() {
-    setPinUI('¡Hola de nuevo! 🌸', 'Ingresa tu PIN para acceder 🔑');
-    pinMode = 'verify'; pinBuf = '';
-    refreshDots();
-    document.getElementById('pin-section').classList.add('visible');
-}
-
-function setPinUI(title, desc) {
-    document.getElementById('pin-title').textContent = title;
-    document.getElementById('pin-desc').textContent  = desc;
-    hidePinError();
-}
-
-function refreshDots() {
-    for (let i = 0; i < 4; i++) {
-        document.getElementById('d' + i).classList.toggle('filled', i < pinBuf.length);
-    }
-}
-
-function showPinError(msg) {
-    const el = document.getElementById('pin-error');
-    el.textContent = msg;
-    el.classList.remove('hidden');
-    const card = document.getElementById('pin-card');
-    card.classList.remove('shake');
-    void card.offsetWidth; // reflow
-    card.classList.add('shake');
-    setTimeout(() => card.classList.remove('shake'), 450);
-}
-
-function hidePinError() {
-    document.getElementById('pin-error').classList.add('hidden');
-}
-
-async function pinKey(d) {
-    if (pinBuf.length >= 4) return;
-    pinBuf += d;
-    refreshDots();
-    hidePinError();
-    if (pinBuf.length === 4) await handlePin(pinBuf);
-}
-
-function pinBack() {
-    if (pinBuf.length) { pinBuf = pinBuf.slice(0, -1); refreshDots(); }
-}
-
-async function handlePin(pin) {
-    if (pinMode === 'setup') {
-        pinFirst = pin; pinBuf = ''; pinMode = 'confirm';
-        refreshDots();
-        setPinUI('Confirma tu PIN ✨', 'Repite los 4 números');
-    } else if (pinMode === 'confirm') {
-        if (pin === pinFirst) {
-            await savePinSetup(pin);
-            await afterPinOk();
-        } else {
-            pinBuf = ''; pinFirst = ''; pinMode = 'setup';
-            refreshDots();
-            showPinError('Los PINs no coinciden. Intenta de nuevo 💕');
-            setTimeout(() => setPinUI('Crea tu PIN secreto', 'Elige 4 números para proteger tu diario 🔐'), 1600);
-        }
-    } else { // verify
-        const ok = await verifyPinAttempt(pin);
-        if (ok) {
-            await afterPinOk();
-        } else {
-            pinBuf = ''; refreshDots();
-            showPinError('PIN incorrecto. Inténtalo de nuevo 💕');
-        }
-    }
-}
-
-async function afterPinOk() {
-    document.getElementById('pin-section').classList.remove('visible');
-    if (needsMigration) {
-        showToast('Migrando tus recuerdos… 💕');
-        await performMigration();
-    }
-    await launchApp();
-}
-
-// ================================================================
-//  KEYBOARD: PIN input + print shortcut
-// ================================================================
-document.addEventListener('keydown', async e => {
-    // Print shortcut (Ctrl+Shift+P)
-    if (e.ctrlKey && e.shiftKey && e.key === 'P') {
-        e.preventDefault();
-        await doPrint();
-        return;
-    }
-    // PIN keyboard
-    if (document.getElementById('pin-section').classList.contains('visible')) {
-        if (e.key >= '0' && e.key <= '9') { await pinKey(e.key); }
-        else if (e.key === 'Backspace')     { pinBack(); }
-    }
-});
-
-// ================================================================
-//  MAIN APP
-// ================================================================
-async function launchApp() {
-    document.getElementById('app-container').classList.add('visible');
-    await updateCounter();
-    await renderPosts();
-    await loadPlaylist();
-}
-
-async function updateCounter() {
-    const rec = await dbGet('settings', 'fecha');
-    if (!rec) return;
-    const diff = Math.floor((Date.now() - new Date(rec.v)) / 86400000);
-    document.getElementById('counter').textContent = `Día ${diff + 1} juntos 💕`;
-}
-
-function switchTab(tab) {
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('nav-' + tab).classList.add('active');
-    document.getElementById('tab-diary').style.display  = tab === 'diary' ? 'block' : 'none';
-    document.getElementById('tab-music').style.display  = tab === 'music' ? 'block' : 'none';
-}
-
-// ================================================================
-//  DIARY
-// ================================================================
-function pickSticker(el) {
-    document.querySelectorAll('.sticker').forEach(s => s.classList.remove('active'));
-    el.classList.add('active');
-    currentSticker = el.textContent;
-}
-
-function previewPhoto(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
-        photoDataUrl = e.target.result;
-        document.getElementById('photo-preview').src = e.target.result;
-        document.getElementById('photo-preview-wrap').style.display = 'block';
+function openDB(){
+  return new Promise((res,rej)=>{
+    const r=indexedDB.open(DB,DBV);
+    r.onupgradeneeded=ev=>{
+      const d=ev.target.result, old=ev.oldVersion;
+      if(!d.objectStoreNames.contains('settings')) d.createObjectStore('settings',{keyPath:'k'});
+      if(!d.objectStoreNames.contains('posts')){
+        const ps=d.createObjectStore('posts',{keyPath:'id',autoIncrement:true});
+        ps.createIndex('ts','ts');
+      }
+      if(!d.objectStoreNames.contains('music')){
+        const ms=d.createObjectStore('music',{keyPath:'id',autoIncrement:true});
+        ms.createIndex('ord','ord');
+      }
+      if(!d.objectStoreNames.contains('moods')) d.createObjectStore('moods',{keyPath:'date'});
+      if(!d.objectStoreNames.contains('dates')){
+        const ds=d.createObjectStore('dates',{keyPath:'id',autoIncrement:true});
+      }
+      if(!d.objectStoreNames.contains('notes')){
+        const ns=d.createObjectStore('notes',{keyPath:'id',autoIncrement:true});
+      }
     };
-    reader.readAsDataURL(file);
+    r.onsuccess=ev=>res(ev.target.result);
+    r.onerror=()=>rej(r.error);
+  });
 }
+const txr=s=>db.transaction(s,'readonly').objectStore(s);
+const txw=s=>db.transaction(s,'readwrite').objectStore(s);
+const dbGet=(s,k)=>new Promise((res,rej)=>{const r=txr(s).get(k);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const dbPut=(s,v)=>new Promise((res,rej)=>{const r=txw(s).put(v);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const dbDel=(s,k)=>new Promise((res,rej)=>{const r=txw(s).delete(k);r.onsuccess=()=>res();r.onerror=()=>rej(r.error)});
+const dbAll=(s)=>new Promise((res,rej)=>{const r=txr(s).getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 
-function clearPhoto() {
-    photoDataUrl = null;
-    document.getElementById('photo-preview-wrap').style.display = 'none';
-    document.getElementById('img-upload').value = '';
+// ================================================================
+// CRYPTO
+// ================================================================
+const ENC='ENC:';
+async function deriveKey(pin,salt){
+  const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pin),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:120000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
 }
-
-async function addPost(btn) {
-    const text = document.getElementById('msg-text').value.trim();
-    if (!text && !photoDataUrl) return;
-
-    btn.disabled    = true;
-    btn.textContent = 'Guardando…';
-
-    const encText = await encryptText(text);
-    await dbPut('posts', {
-        text:    encText,
-        sticker: currentSticker,
-        date:    new Date().toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' }),
-        image:   photoDataUrl || null,
-        ts:      Date.now()
-    });
-
-    document.getElementById('msg-text').value = '';
-    clearPhoto();
-    btn.disabled    = false;
-    btn.textContent = 'Publicar 💌';
-    showToast('Recuerdo guardado 💌');
-    await renderPosts();
+async function enc(plain){
+  if(!cryptoKey||!plain)return plain;
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},cryptoKey,new TextEncoder().encode(plain));
+  const buf=new Uint8Array(12+ct.byteLength); buf.set(iv); buf.set(new Uint8Array(ct),12);
+  return ENC+btoa(String.fromCharCode(...buf));
 }
-
-async function renderPosts() {
-    const container = document.getElementById('posts-container');
-    const posts = await dbAll('posts');
-    posts.sort((a, b) => (b.ts || 0) - (a.ts || 0));
-
-    if (!posts.length) {
-        container.innerHTML = '<div class="posts-empty">Aquí aparecerán tus recuerdos 🌸<br><span style="font-size:.85rem">Escribe tu primer pensamiento arriba ✨</span></div>';
-        return;
-    }
-
-    const rows = await Promise.all(posts.map(async p => {
-        const txt = await decryptText(p.text || '');
-        return { ...p, txt };
-    }));
-
-    container.innerHTML = rows.map(p => `
-        <div class="post" data-id="${p.id}">
-            <div class="post-header">
-                <span class="post-date">${p.date || ''}</span>
-                <span class="post-sticker">${p.sticker || '🌸'}</span>
-            </div>
-            <div class="post-text">${esc(p.txt)}</div>
-            ${p.image ? `<img src="${p.image}" class="post-img" loading="lazy">` : ''}
-        </div>
-    `).join('');
+async function dec(cipher){
+  if(!cryptoKey||!cipher)return cipher;
+  if(!cipher.startsWith(ENC))return cipher;
+  try{
+    const buf=new Uint8Array(atob(cipher.slice(ENC.length)).split('').map(c=>c.charCodeAt(0)));
+    const d=await crypto.subtle.decrypt({name:'AES-GCM',iv:buf.slice(0,12)},cryptoKey,buf.slice(12));
+    return new TextDecoder().decode(d);
+  }catch{return '[cifrado]'}
 }
-
-function esc(t) {
-    const d = document.createElement('div');
-    d.appendChild(document.createTextNode(t));
-    return d.innerHTML;
+async function setupPin(pin){
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  cryptoKey=await deriveKey(pin,salt);
+  const tok=await enc('DIARY_OK');
+  await dbPut('settings',{k:'pin_salt',v:btoa(String.fromCharCode(...salt))});
+  await dbPut('settings',{k:'pin_tok',v:tok});
+}
+async function verifyPin(pin){
+  const sr=await dbGet('settings','pin_salt');
+  const tr=await dbGet('settings','pin_tok');
+  if(!sr||!tr)return false;
+  const salt=new Uint8Array(atob(sr.v).split('').map(c=>c.charCodeAt(0)));
+  const testKey=await deriveKey(pin,salt);
+  const prev=cryptoKey; cryptoKey=testKey;
+  if(await dec(tr.v)==='DIARY_OK')return true;
+  cryptoKey=prev; return false;
 }
 
 // ================================================================
-//  MUSIC PLAYER
+// MIGRATION
 // ================================================================
-document.getElementById('music-file-input').addEventListener('change', async e => {
-    const files = Array.from(e.target.files);
-    if (!files.length) return;
-    showToast('Añadiendo canciones…');
-    const existingCount = (await dbAll('music')).length;
-    for (let i = 0; i < files.length; i++) {
-        const f   = files[i];
-        const buf = await f.arrayBuffer();
-        await dbPut('music', {
-            name: f.name.replace(/\.[^/.]+$/, ''),
-            data: buf,
-            mime: f.type,
-            ord:  existingCount + i
-        });
-    }
-    await loadPlaylist();
-    showToast(`${files.length} canción${files.length !== 1 ? 'es' : ''} añadida${files.length !== 1 ? 's' : ''} 🎵`);
-    e.target.value = '';
+function sniffLS(){
+  const ic=localStorage.getItem('isCouple'),f=localStorage.getItem('fecha_novios'),p=localStorage.getItem('posts');
+  if(ic||f||p){migData={isCouple:ic,fecha:f,posts:p?JSON.parse(p):[]};needsMig=true}
+}
+async function doMig(){
+  if(!migData)return;
+  const{isCouple,fecha,posts}=migData;
+  if(isCouple)await dbPut('settings',{k:'isCouple',v:isCouple});
+  if(fecha)await dbPut('settings',{k:'fecha',v:fecha});
+  for(let i=posts.length-1;i>=0;i--){
+    const p=posts[i];
+    await dbPut('posts',{text:await enc(p.text||''),sticker:p.sticker||'🌸',
+      date:p.date||new Date().toLocaleDateString('es-ES'),image:p.image||null,ts:Date.now()-i*1000});
+  }
+  localStorage.removeItem('isCouple');localStorage.removeItem('fecha_novios');localStorage.removeItem('posts');
+  needsMig=false;migData=null;
+}
+
+// ================================================================
+// PWA
+// ================================================================
+function registerSW(){
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  }
+}
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  setTimeout(()=>document.getElementById('install-banner').classList.add('on'),3000);
+});
+document.getElementById('install-btn').addEventListener('click',async()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt=null;
+  document.getElementById('install-banner').classList.remove('on');
 });
 
-async function loadPlaylist() {
-    const tracks = await dbAll('music');
-    tracks.sort((a, b) => (a.ord || 0) - (b.ord || 0));
-    playlist = tracks;
-    renderPlaylist();
+async function requestNotifPermission(){
+  if('Notification' in window && Notification.permission==='default'){
+    await Notification.requestPermission();
+  }
+}
+function showNotif(title,body){
+  if(Notification.permission==='granted'){
+    new Notification(title,{body,icon:'./icons/icon.svg'});
+  }
 }
 
-function renderPlaylist() {
-    const el = document.getElementById('playlist');
-    if (!playlist.length) {
-        el.innerHTML = '<div class="playlist-empty">🎵 Aún no hay canciones.<br>¡Añade la primera!</div>';
-        return;
+// ================================================================
+// BOOT
+// ================================================================
+async function boot(){
+  db=await openDB();
+  sniffLS();
+  const ic=await dbGet('settings','isCouple');
+  const isCouple=ic?ic.v==='true':(needsMig&&migData.isCouple==='true');
+  const load=document.getElementById('load');
+  load.classList.add('out');
+  setTimeout(()=>{load.style.display='none'},420);
+  if(!isCouple){showLogin()}
+  else{const ps=await dbGet('settings','pin_salt');ps?showPinVerify():showPinSetup()}
+  registerSW();
+}
+
+// ================================================================
+// LOGIN
+// ================================================================
+function showLogin(){
+  const l=document.getElementById('login'); l.classList.add('on');
+  requestAnimationFrame(()=>{
+    const si=document.getElementById('btn-si');
+    const r=si.getBoundingClientRect();
+    const no=document.getElementById('btn-no');
+    no.style.left=(r.left-no.offsetWidth-14)+'px';
+    no.style.top=(r.top+8)+'px';
+  });
+}
+function huir(){
+  const no=document.getElementById('btn-no');
+  no.style.left=Math.max(8,Math.random()*(window.innerWidth-80))+'px';
+  no.style.top=Math.max(8,Math.random()*(window.innerHeight-44))+'px';
+}
+async function aceptar(btn){
+  btn.textContent='✨'; hap([20,10,20]);
+  await dbPut('settings',{k:'isCouple',v:'true'});
+  await dbPut('settings',{k:'fecha',v:new Date().toISOString()});
+  document.getElementById('login').classList.remove('on');
+  showPinSetup();
+}
+
+// ================================================================
+// PIN
+// ================================================================
+function showPinSetup(){pinMode='setup';pinBuf='';pinFirst='';setPinUI('Crea tu PIN','Elige 4 números para proteger tu diario 🔐');updateDots();document.getElementById('pin').classList.add('on')}
+function showPinVerify(){pinMode='verify';pinBuf='';setPinUI('¡Hola de nuevo! 🌸','Ingresa tu PIN para acceder 🔑');updateDots();document.getElementById('pin').classList.add('on')}
+function setPinUI(t,d){document.getElementById('pin-title').textContent=t;document.getElementById('pin-desc').textContent=d;hidePinErr()}
+function updateDots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('on',i<pinBuf.length)}
+function showPinErr(msg){const e=document.getElementById('pin-err');e.textContent=msg;e.classList.add('on');const c=document.getElementById('pin-card');c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake');hap([50,30,50])}
+function hidePinErr(){document.getElementById('pin-err').classList.remove('on')}
+
+async function pk(d){
+  if(pinBuf.length>=4)return;
+  pinBuf+=d; updateDots(); hap([15]); hidePinErr();
+  if(pinBuf.length===4)await handlePin(pinBuf);
+}
+function pb(){if(pinBuf.length){pinBuf=pinBuf.slice(0,-1);updateDots();hap([10])}}
+
+async function handlePin(pin){
+  if(pinMode==='setup'){
+    pinFirst=pin;pinBuf='';pinMode='confirm';updateDots();
+    setPinUI('Confirma tu PIN ✨','Repite los 4 números');
+  }else if(pinMode==='confirm'){
+    if(pin===pinFirst){await setupPin(pin);await afterPin()}
+    else{pinBuf='';pinFirst='';pinMode='setup';updateDots();showPinErr('Los PINs no coinciden. Intenta de nuevo 💕');setTimeout(()=>setPinUI('Crea tu PIN','Elige 4 números para proteger tu diario 🔐'),1600)}
+  }else{
+    if(await verifyPin(pin)){await afterPin()}
+    else{pinBuf='';updateDots();showPinErr('PIN incorrecto. Inténtalo de nuevo 💕')}
+  }
+}
+async function afterPin(){
+  document.getElementById('pin').classList.remove('on');
+  if(needsMig){toast('Migrando tus recuerdos… 💕');await doMig()}
+  await launchApp();
+}
+
+// ================================================================
+// KEYBOARD
+// ================================================================
+document.addEventListener('keydown',async e=>{
+  if(e.ctrlKey&&e.shiftKey&&e.key==='P'){e.preventDefault();await doPrint();return}
+  if(document.getElementById('pin').classList.contains('on')){
+    if(e.key>='0'&&e.key<='9')await pk(e.key);
+    else if(e.key==='Backspace')pb();
+  }
+});
+
+// ================================================================
+// LAUNCH APP
+// ================================================================
+async function launchApp(){
+  document.getElementById('app').classList.add('on');
+  await updateCounter();
+  await renderPosts();
+  await renderGallery();
+  await renderMood();
+  await renderDates();
+  await loadPlaylist();
+  await renderNotes();
+  await checkCelebrations();
+  setupTitleTap();
+  await requestNotifPermission();
+  setInterval(updateCounter,60000);
+}
+
+async function updateCounter(){
+  const r=await dbGet('settings','fecha');
+  if(!r)return;
+  const days=Math.floor((Date.now()-new Date(r.v))/86400000);
+  document.getElementById('counter').textContent=`Día ${days+1} juntos 💕`;
+}
+
+// ================================================================
+// TAB NAVIGATION
+// ================================================================
+const navIds=['nav-diary','nav-gallery','nav-mood','nav-dates','nav-music'];
+const screenIds=['s-diary','s-gallery','s-mood','s-dates','s-music'];
+function goTab(idx){
+  if(idx===tabIdx)return;
+  const dir=idx>tabIdx?1:-1;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const ns=document.getElementById(screenIds[idx]);
+  ns.style.setProperty('--dir',dir*30+'px');
+  ns.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(n=>n.classList.remove('active'));
+  document.getElementById(navIds[idx]).classList.add('active');
+  tabIdx=idx; hap([15]);
+  if(idx===1)renderGallery();
+  if(idx===2){renderMood();document.getElementById('mood-dot').classList.remove('on')}
+  if(idx===3){renderDates();document.getElementById('dates-dot').classList.remove('on')}
+}
+
+// ================================================================
+// DIARY VIEW TOGGLE
+// ================================================================
+function setView(v){
+  document.getElementById('vt-write').classList.toggle('on',v==='write');
+  document.getElementById('vt-timeline').classList.toggle('on',v==='timeline');
+  document.getElementById('v-write').style.display=v==='write'?'block':'none';
+  document.getElementById('v-timeline').style.display=v==='timeline'?'block':'none';
+  if(v==='timeline')renderTimeline();
+}
+
+// ================================================================
+// DIARY
+// ================================================================
+function pickStk(el){document.querySelectorAll('.stk').forEach(s=>s.classList.remove('on'));el.classList.add('on');currentStk=el.textContent;hap([15])}
+function previewPic(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{picData=e.target.result;const pi=document.getElementById('pic-prev');pi.src=e.target.result;pi.style.display='block';document.getElementById('pic-clr').style.display='block'};
+  r.readAsDataURL(f);
+}
+function clearPic(){picData=null;document.getElementById('pic-prev').style.display='none';document.getElementById('pic-clr').style.display='none';document.querySelector('.photo-label input').value=''}
+
+async function addPost(btn){
+  const txt=document.getElementById('msg').value.trim();
+  if(!txt&&!picData)return;
+  btn.disabled=true;btn.textContent='Guardando…';hap([20,10,20]);
+  const encTxt=await enc(txt);
+  await dbPut('posts',{text:encTxt,sticker:currentStk,
+    date:new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'}),
+    image:picData||null,ts:Date.now()});
+  document.getElementById('msg').value='';clearPic();
+  btn.disabled=false;btn.textContent='Publicar 💌';
+  toast('Recuerdo guardado 💌');
+  const rect=btn.getBoundingClientRect();
+  spawnHearts(rect.left+rect.width/2,rect.top);
+  await renderPosts();await renderGallery();
+}
+
+const esc=t=>{const d=document.createElement('div');d.appendChild(document.createTextNode(t));return d.innerHTML};
+
+async function renderPosts(){
+  const c=document.getElementById('posts');
+  const all=await dbAll('posts');
+  all.sort((a,b)=>(b.ts||0)-(a.ts||0));
+  if(!all.length){c.innerHTML='<div class="posts-empty">Aquí aparecerán tus recuerdos 🌸<br><span style="font-size:.85rem">Escribe tu primer pensamiento ✨</span></div>';return}
+  const rows=await Promise.all(all.map(async p=>({...p,txt:await dec(p.text||'')})));
+  c.innerHTML=rows.map(p=>`
+    <div class="post">
+      <div class="post-hdr"><span class="post-date">${p.date||''}</span><span class="post-stk">${p.sticker||'🌸'}</span></div>
+      <div class="post-txt">${esc(p.txt)}</div>
+      ${p.image?`<img src="${p.image}" class="post-img" onclick="openLBFromPost('${p.id}',this)" loading="lazy">`:''}
+    </div>`).join('');
+}
+
+async function renderTimeline(){
+  const wrap=document.getElementById('timeline-wrap');
+  const all=await dbAll('posts');
+  all.sort((a,b)=>(b.ts||0)-(a.ts||0));
+  if(!all.length){wrap.innerHTML='<div class="posts-empty">Aún no hay recuerdos en la línea del tiempo 📜</div>';return}
+  const rows=await Promise.all(all.map(async p=>({...p,txt:await dec(p.text||'')})));
+  const groups={};
+  rows.forEach(p=>{const k=new Date(p.ts||Date.now()).toLocaleDateString('es-ES',{month:'long',year:'numeric'});if(!groups[k])groups[k]=[];groups[k].push(p)});
+  wrap.innerHTML='<div class="timeline">'+Object.entries(groups).map(([month,posts])=>`
+    <div class="tl-month">✦ ${month}</div>
+    ${posts.map(p=>`<div class="tl-item"><div class="tl-dot"></div><div class="post">
+      <div class="post-hdr"><span class="post-date">${p.date||''}</span><span class="post-stk">${p.sticker||'🌸'}</span></div>
+      <div class="post-txt">${esc(p.txt)}</div>
+      ${p.image?`<img src="${p.image}" class="post-img" style="cursor:pointer" onclick="openLBFromPost('${p.id}',this)" loading="lazy">`:''}
+    </div></div>`).join('')}`).join('')+'</div>';
+}
+
+// ================================================================
+// GALLERY
+// ================================================================
+async function renderGallery(){
+  const all=await dbAll('posts');
+  galleryImages=all.filter(p=>p.image).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  const grid=document.getElementById('gallery-grid');
+  const empty=document.getElementById('gallery-empty');
+  if(!galleryImages.length){grid.innerHTML='';grid.style.display='none';empty.style.display='block';return}
+  grid.style.display='grid';empty.style.display='none';
+  grid.innerHTML=galleryImages.map((p,i)=>`
+    <div class="gallery-item" onclick="openLB(${i})">
+      <img src="${p.image}" loading="lazy" alt="">
+      <span class="gal-stk">${p.sticker||'🌸'}</span>
+    </div>`).join('');
+}
+
+function openLBFromPost(id,img){
+  const idx=galleryImages.findIndex(p=>String(p.id)===String(id));
+  if(idx>=0)openLB(idx);else{lbIdx=0;const lb=document.getElementById('lightbox');document.getElementById('lb-img').src=img.src;lb.classList.add('on')}
+}
+
+function openLB(idx){
+  lbIdx=idx; lbScale=1;
+  const lb=document.getElementById('lightbox');
+  const img=document.getElementById('lb-img');
+  img.src=galleryImages[idx].image;
+  img.style.transform='scale(1)';
+  document.getElementById('lb-counter').textContent=`${idx+1} / ${galleryImages.length}`;
+  lb.classList.add('on'); hap([20]);
+  setupLBTouch(img);
+}
+function closeLB(){document.getElementById('lightbox').classList.remove('on');lbScale=1}
+function lbNav(d){
+  lbIdx=(lbIdx+d+galleryImages.length)%galleryImages.length;
+  lbScale=1;
+  const img=document.getElementById('lb-img');
+  img.src=galleryImages[lbIdx].image;
+  img.style.transform='scale(1)';
+  document.getElementById('lb-counter').textContent=`${lbIdx+1} / ${galleryImages.length}`;
+  hap([15]);
+}
+function setupLBTouch(img){
+  let startDist=0,startScale=1,swipeX=0;
+  img.addEventListener('touchstart',e=>{
+    if(e.touches.length===2){startDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);startScale=lbScale}
+    if(e.touches.length===1)swipeX=e.touches[0].clientX;
+    e.preventDefault();
+  },{passive:false});
+  img.addEventListener('touchmove',e=>{
+    if(e.touches.length===2){
+      const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+      lbScale=Math.min(4,Math.max(1,startScale*(d/startDist)));
+      img.style.transform=`scale(${lbScale})`;
     }
-    el.innerHTML = playlist.map((t, i) => `
-        <div class="track ${i === trackIndex ? 'active' : ''}" onclick="loadTrack(${i})">
-            <span class="track-num">${i === trackIndex && playing ? '▶' : i + 1}</span>
-            <div class="track-meta">
-                <div class="track-name">${esc(t.name)}</div>
-            </div>
-            <button class="track-del" onclick="deleteTrack(event,${i})" title="Eliminar">✕</button>
-        </div>
-    `).join('');
-}
-
-function loadTrack(i) {
-    if (i < 0 || i >= playlist.length) return;
-    trackIndex = i;
-    const t   = playlist[i];
-    const url = URL.createObjectURL(new Blob([t.data], { type: t.mime }));
-    audioEl.pause();
-    audioEl.src = url;
-    audioEl.play().then(() => { playing = true; updatePlayerUI(); }).catch(() => {});
-    document.getElementById('np-title').textContent = t.name;
-    document.getElementById('np-sub').textContent   = `Pista ${i + 1} de ${playlist.length}`;
-    renderPlaylist();
-}
-
-function togglePlay() {
-    if (!playlist.length) return;
-    if (trackIndex === -1) { loadTrack(0); return; }
-    if (playing) { audioEl.pause(); playing = false; }
-    else         { audioEl.play();  playing = true;  }
-    updatePlayerUI();
-}
-
-function prevTrack() {
-    if (!playlist.length) return;
-    if (audioEl.currentTime > 3) { audioEl.currentTime = 0; return; }
-    loadTrack((trackIndex - 1 + playlist.length) % playlist.length);
-}
-
-function nextTrack() {
-    if (!playlist.length) return;
-    loadTrack((trackIndex + 1) % playlist.length);
-}
-
-function updatePlayerUI() {
-    document.getElementById('play-btn').textContent = playing ? '⏸' : '▶';
-    document.getElementById('cd-disc').classList.toggle('playing', playing);
-}
-
-function fmtTime(s) {
-    if (!s || isNaN(s)) return '0:00';
-    return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
-}
-
-function seekTo(e) {
-    if (!audioEl.duration) return;
-    const bar  = document.getElementById('progress-bar');
-    const pct  = (e.clientX - bar.getBoundingClientRect().left) / bar.offsetWidth;
-    audioEl.currentTime = Math.max(0, Math.min(1, pct)) * audioEl.duration;
-}
-
-audioEl.addEventListener('timeupdate', () => {
-    if (!audioEl.duration) return;
-    const pct  = (audioEl.currentTime / audioEl.duration) * 100;
-    const fill = document.getElementById('progress-fill');
-    fill.style.width = pct + '%';
-    fill.classList.toggle('zero', pct < 0.5);
-    document.getElementById('t-cur').textContent = fmtTime(audioEl.currentTime);
-});
-audioEl.addEventListener('loadedmetadata', () => {
-    document.getElementById('t-tot').textContent = fmtTime(audioEl.duration);
-});
-audioEl.addEventListener('ended', () => {
-    playing = false; updatePlayerUI();
-    if (playlist.length > 1) setTimeout(() => nextTrack(), 600);
-});
-audioEl.addEventListener('play',  () => { playing = true;  updatePlayerUI(); });
-audioEl.addEventListener('pause', () => { playing = false; updatePlayerUI(); });
-
-async function deleteTrack(e, i) {
-    e.stopPropagation();
-    await dbDelete('music', playlist[i].id);
-    if (trackIndex === i) {
-        audioEl.pause(); audioEl.src = '';
-        playing = false; trackIndex = -1;
-        document.getElementById('np-title').textContent = 'Tu Mix Especial ☁️';
-        document.getElementById('np-sub').textContent   = 'Dale al play y acuérdate de mí ✨';
-        document.getElementById('progress-fill').style.width = '0%';
-        document.getElementById('progress-fill').classList.add('zero');
-        updatePlayerUI();
-    } else if (trackIndex > i) {
-        trackIndex--;
+    e.preventDefault();
+  },{passive:false});
+  img.addEventListener('touchend',e=>{
+    if(e.changedTouches.length===1&&lbScale<=1){
+      const dx=e.changedTouches[0].clientX-swipeX;
+      if(Math.abs(dx)>60)lbNav(dx<0?1:-1);
     }
-    await loadPlaylist();
-    showToast('Canción eliminada');
+  });
 }
 
 // ================================================================
-//  PRINT  (secret shortcut: Ctrl+Shift+P)
+// MOOD
 // ================================================================
-async function doPrint() {
-    const posts = await dbAll('posts');
-    posts.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+let selectedMood=0;
+function pickMood(m){
+  selectedMood=m;
+  document.querySelectorAll('.mood-btn').forEach(b=>{b.classList.toggle('on',parseInt(b.dataset.mood)===m)});
+  hap([20,10,20]);
+}
 
-    const rows = await Promise.all(posts.map(async p => ({
-        ...p, txt: await decryptText(p.text || '')
-    })));
+async function saveMood(){
+  if(!selectedMood){toast('Elige un ánimo primero 💕');return}
+  const today=new Date().toISOString().slice(0,10);
+  const note=document.getElementById('mood-note').value.trim();
+  await dbPut('moods',{date:today,mood:selectedMood,note,ts:Date.now()});
+  selectedMood=0;
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('mood-note').value='';
+  toast('Ánimo guardado 💕'); hap([20,10,20]);
+  await renderMood();
+}
 
-    document.getElementById('pt-date').textContent =
-        'Impreso el ' + new Date().toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' });
-
-    document.getElementById('pt-posts').innerHTML = rows.map(p => `
-        <div class="pt-post">
-            <div class="pt-post-header">
-                <div class="pt-post-date">${p.date || ''}</div>
-                <span class="pt-post-sticker">${p.sticker || '🌸'}</span>
-            </div>
-            <div class="pt-post-text">${esc(p.txt)}</div>
-            ${p.image ? `<img src="${p.image}">` : ''}
-        </div>
-    `).join('');
-
-    window.print();
+async function renderMood(){
+  // load today's mood
+  const today=new Date().toISOString().slice(0,10);
+  const todayMood=await dbGet('moods',today);
+  if(todayMood){
+    document.querySelectorAll('.mood-btn').forEach(b=>{b.classList.toggle('on',parseInt(b.dataset.mood)===todayMood.mood)});
+    selectedMood=todayMood.mood;
+    document.getElementById('mood-note').value=todayMood.note||'';
+  }
+  // weekly chart
+  const moods=['','😢','😕','😐','😊','🥰'];
+  const cols=['','#94A3B8','#F472B6','#FB923C','#A78BFA','#F472B6'];
+  const days=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const key=d.toISOString().slice(0,10);
+    const rec=await dbGet('moods',key);
+    days.push({key,label:d.toLocaleDateString('es-ES',{weekday:'narrow'}),mood:rec?rec.mood:0});
+  }
+  const maxH=60,bw=28,gap=10,sw=(bw+gap)*7-gap;
+  const svg=`<svg viewBox="0 0 ${sw+20} ${maxH+28}" style="width:100%;overflow:visible">
+    ${days.map((d,i)=>{
+      const h=d.mood?(d.mood/5)*maxH:4;const x=10+i*(bw+gap);const y=maxH-h;
+      return `<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="6" fill="${d.mood?cols[d.mood]:'var(--border)'}" opacity="${d.mood?1:.4}"/>
+        <text x="${x+bw/2}" y="${maxH+16}" text-anchor="middle" font-size="9" fill="var(--t3)" font-family="Quicksand,sans-serif">${d.label}</text>
+        ${d.mood?`<text x="${x+bw/2}" y="${y-4}" text-anchor="middle" font-size="12">${moods[d.mood]}</text>`:''}`;
+    }).join('')}
+  </svg>`;
+  document.getElementById('mood-chart').innerHTML=svg;
+  // history
+  const all=await dbAll('moods');
+  all.sort((a,b)=>b.ts-a.ts);
+  const hist=document.getElementById('mood-history');
+  if(!all.length){hist.innerHTML='<div style="padding:16px 20px;color:var(--t3);font-size:.88rem">Aún no hay registros 📊</div>';return}
+  hist.innerHTML='<div class="mood-history-title" style="padding:16px 20px 0">Historial</div>'+
+    all.slice(0,14).map(m=>`<div class="mood-entry"><span class="me-emoji">${moods[m.mood]}</span>
+      <span class="me-date">${m.date}</span>
+      ${m.note?`<span class="me-note">${esc(m.note)}</span>`:''}
+    </div>`).join('');
 }
 
 // ================================================================
-//  TOAST
+// SPECIAL DATES
 // ================================================================
-let toastTimer = null;
-function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+async function addDate(){
+  const name=document.getElementById('d-name').value.trim();
+  const emoji=document.getElementById('d-emoji').value.trim()||'💕';
+  const date=document.getElementById('d-date').value;
+  const color=document.getElementById('d-color').value;
+  if(!name||!date){toast('Completa nombre y fecha 💕');return}
+  await dbPut('dates',{name,emoji,date,color,createdAt:Date.now()});
+  document.getElementById('d-name').value='';document.getElementById('d-emoji').value='';document.getElementById('d-date').value='';
+  hap([20,10,20]);toast('Fecha especial añadida 🗓');
+  await renderDates();
+}
+
+function nextOccurrence(dateStr){
+  const d=new Date(dateStr+'T12:00:00');
+  const now=new Date();
+  const next=new Date(now.getFullYear(),d.getMonth(),d.getDate());
+  if(next<now)next.setFullYear(now.getFullYear()+1);
+  return next;
+}
+
+async function renderDates(){
+  // First add couple's anniversary from settings
+  const all=await dbAll('dates');
+  const fechaRec=await dbGet('settings','fecha');
+  let items=[...all];
+
+  const list=document.getElementById('dates-list');
+  if(!items.length&&!fechaRec){list.innerHTML='<div class="dates-empty">Aún no hay fechas especiales 🗓<br><span style="font-size:.85rem">Añade la primera arriba ✨</span></div>';return}
+
+  // Sort by next occurrence
+  const withNext=items.map(d=>{const next=nextOccurrence(d.date);const diff=Math.ceil((next-new Date())/(1000*60*60*24));return{...d,next,diff}});
+  withNext.sort((a,b)=>a.diff-b.diff);
+
+  list.innerHTML=withNext.map(d=>`
+    <div class="date-card" style="--card-color:${d.color||'var(--a1)'}">
+      <span class="date-emoji">${d.emoji}</span>
+      <div class="date-info">
+        <div class="date-name">${esc(d.name)}</div>
+        <div class="date-when">${new Date(d.date+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})}</div>
+      </div>
+      <div class="date-countdown">
+        <div class="countdown-num">${d.diff===0?'🎉':d.diff}</div>
+        <div class="countdown-label">${d.diff===0?'HOY':'días'}</div>
+      </div>
+      <button class="date-del" onclick="delDate(${d.id},event)">✕</button>
+    </div>`).join('');
+}
+
+async function delDate(id,e){
+  e.stopPropagation();
+  await dbDel('dates',id);hap([15]);await renderDates();
 }
 
 // ================================================================
-//  INIT
+// CELEBRATIONS
 // ================================================================
-boot().catch(err => console.error('Boot error:', err));
+async function checkCelebrations(){
+  const today=new Date();
+  const mm=today.getMonth(),dd=today.getDate();
+
+  // Couple anniversary
+  const fechaRec=await dbGet('settings','fecha');
+  if(fechaRec){
+    const start=new Date(fechaRec.v);
+    if(start.getMonth()===mm&&start.getDate()===dd){
+      const years=today.getFullYear()-start.getFullYear();
+      const totalDays=Math.floor((today-start)/86400000);
+      setTimeout(()=>{
+        confetti();
+        document.getElementById('celeb-emoji').textContent='💕';
+        document.getElementById('celeb-title').textContent='¡Feliz Aniversario!';
+        document.getElementById('celeb-text').textContent=`Hoy hacemos ${years} año${years!==1?'s':''} juntos. Te quiero muchísimo.`;
+        document.getElementById('celeb-days').textContent=`${totalDays} días de amor 💕`;
+        document.getElementById('celeb').classList.add('on');
+        hap([50,30,50,30,100]);
+        showNotif('🎉 ¡Feliz Aniversario!',`¡${totalDays} días juntos! 💕`);
+        document.getElementById('dates-dot').classList.add('on');
+      },1500);
+    }
+  }
+
+  // Custom dates
+  const dates=await dbAll('dates');
+  for(const d of dates){
+    const ev=new Date(d.date+'T12:00:00');
+    if(ev.getMonth()===mm&&ev.getDate()===dd){
+      setTimeout(()=>{
+        confetti();
+        document.getElementById('celeb-emoji').textContent=d.emoji;
+        document.getElementById('celeb-title').textContent=`¡${d.name}!`;
+        const evYears=today.getFullYear()-ev.getFullYear();
+        document.getElementById('celeb-text').textContent=evYears>0?`Hace ${evYears} año${evYears!==1?'s':''} de este momento tan especial.`:'¡Hoy es el día!';
+        document.getElementById('celeb-days').textContent='';
+        document.getElementById('celeb').classList.add('on');
+        hap([50,30,50,30,100]);
+      },2000);
+    }
+  }
+  // Note reveals
+  await checkNoteReveals();
+}
+
+// ================================================================
+// NOTES (Love Notes)
+// ================================================================
+async function renderNotes(){
+  // Notes are shown in diary tab if admin chose to display
+  // Revealed notes appear automatically; unrevealed show locked state
+  const notes=await dbAll('notes');
+  const today=new Date().toISOString().slice(0,10);
+  const revealed=notes.filter(n=>n.revealDate<=today);
+  const locked=notes.filter(n=>n.revealDate>today);
+  // Notes appear in the diary feed for now, via checkNoteReveals
+}
+
+async function checkNoteReveals(){
+  const notes=await dbAll('notes');
+  const today=new Date().toISOString().slice(0,10);
+  const toReveal=notes.filter(n=>!n.shown&&n.revealDate<=today);
+  for(const n of toReveal){
+    const decText=await dec(n.message);
+    setTimeout(()=>{
+      document.getElementById('rv-text').textContent=decText;
+      document.getElementById('note-reveal').classList.add('on');
+      hap([50,30,100]);
+      confetti();
+    },3000);
+    await dbPut('notes',{...n,shown:true});
+    break; // show one at a time
+  }
+}
+
+// ADMIN MODE – triple-tap on title
+function setupTitleTap(){
+  const title=document.getElementById('app-title');
+  title.addEventListener('click',()=>{
+    const now=Date.now();
+    tapTimes=tapTimes.filter(t=>now-t<1000);
+    tapTimes.push(now);
+    if(tapTimes.length>=3){tapTimes=[];openAdmin()}
+  });
+}
+function openAdmin(){
+  document.getElementById('admin-sheet').classList.add('on');
+  document.getElementById('admin-overlay').classList.add('on');
+  document.getElementById('admin-date').valueAsDate=new Date();
+}
+function closeAdmin(){
+  document.getElementById('admin-sheet').classList.remove('on');
+  document.getElementById('admin-overlay').classList.remove('on');
+}
+async function saveNote(){
+  const msg=document.getElementById('admin-msg').value.trim();
+  const date=document.getElementById('admin-date').value;
+  if(!msg||!date){toast('Completa el mensaje y la fecha 💕');return}
+  const encMsg=await enc(msg);
+  await dbPut('notes',{message:encMsg,revealDate:date,shown:false,createdAt:Date.now()});
+  document.getElementById('admin-msg').value='';
+  closeAdmin();hap([20,10,20]);
+  toast('Nota secreta guardada 💌');
+}
+
+// ================================================================
+// MUSIC
+// ================================================================
+document.getElementById('mfi').addEventListener('change',async e=>{
+  const files=Array.from(e.target.files);if(!files.length)return;
+  toast('Añadiendo canciones…');
+  const existing=(await dbAll('music')).length;
+  for(let i=0;i<files.length;i++){
+    const f=files[i],buf=await f.arrayBuffer();
+    await dbPut('music',{name:f.name.replace(/\.[^/.]+$/,''),data:buf,mime:f.type,ord:existing+i});
+  }
+  await loadPlaylist();toast(`${files.length} canción${files.length!==1?'es':''} añadida${files.length!==1?'s':''} 🎵`);
+  e.target.value='';
+});
+
+async function loadPlaylist(){
+  const t=await dbAll('music');
+  t.sort((a,b)=>(a.ord||0)-(b.ord||0));
+  playlist=t;renderPlaylist();
+}
+function renderPlaylist(){
+  const c=document.getElementById('playlist');
+  if(!playlist.length){c.innerHTML='<div class="pl-empty">🎵 Aún no hay canciones.<br>¡Añade la primera!</div>';return}
+  c.innerHTML=playlist.map((t,i)=>`
+    <div class="track ${i===trkIdx?'on':''}" onclick="loadTrack(${i})">
+      <span class="t-num">${i===trkIdx&&playing?'▶':i+1}</span>
+      <div class="t-meta"><div class="t-name">${esc(t.name)}</div></div>
+      <button class="t-del" onclick="delTrack(event,${i})">✕</button>
+    </div>`).join('');
+}
+function loadTrack(i){
+  if(i<0||i>=playlist.length)return;
+  trkIdx=i;const t=playlist[i];
+  const url=URL.createObjectURL(new Blob([t.data],{type:t.mime}));
+  audio.pause();audio.src=url;
+  audio.play().then(()=>{playing=true;updatePlayerUI()}).catch(()=>{});
+  document.getElementById('np-title').textContent=t.name;
+  document.getElementById('np-sub').textContent=`Pista ${i+1} de ${playlist.length}`;
+  renderPlaylist();hap([15]);
+}
+function togglePlay(){
+  if(!playlist.length)return;
+  if(trkIdx===-1){loadTrack(0);return}
+  if(playing){audio.pause();playing=false}else{audio.play();playing=true}
+  updatePlayerUI();hap([15]);
+}
+function prev(){if(!playlist.length)return;if(audio.currentTime>3){audio.currentTime=0;return}loadTrack((trkIdx-1+playlist.length)%playlist.length)}
+function next(){if(!playlist.length)return;loadTrack((trkIdx+1)%playlist.length)}
+function updatePlayerUI(){
+  document.getElementById('play-btn').textContent=playing?'⏸':'▶';
+  document.getElementById('cd').classList.toggle('spin',playing);
+}
+function seekTo(e){
+  if(!audio.duration)return;
+  const b=document.getElementById('prog').parentElement;
+  audio.currentTime=Math.max(0,Math.min(1,(e.clientX-b.getBoundingClientRect().left)/b.offsetWidth))*audio.duration;
+}
+const fmtT=s=>s&&!isNaN(s)?`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`:'0:00';
+audio.addEventListener('timeupdate',()=>{
+  if(!audio.duration)return;
+  const pct=(audio.currentTime/audio.duration)*100;
+  const f=document.getElementById('prog');f.style.width=pct+'%';f.classList.toggle('z',pct<0.5);
+  document.getElementById('t-cur').textContent=fmtT(audio.currentTime);
+});
+audio.addEventListener('loadedmetadata',()=>{document.getElementById('t-tot').textContent=fmtT(audio.duration)});
+audio.addEventListener('ended',()=>{playing=false;updatePlayerUI();if(playlist.length>1)setTimeout(next,600)});
+audio.addEventListener('play',()=>{playing=true;updatePlayerUI()});
+audio.addEventListener('pause',()=>{playing=false;updatePlayerUI()});
+async function delTrack(e,i){
+  e.stopPropagation();await dbDel('music',playlist[i].id);
+  if(trkIdx===i){audio.pause();audio.src='';playing=false;trkIdx=-1;
+    document.getElementById('np-title').textContent='Tu Mix Especial ☁️';
+    document.getElementById('np-sub').textContent='Dale al play y acuérdate de mí ✨';
+    document.getElementById('prog').style.width='0%';document.getElementById('prog').classList.add('z');
+    updatePlayerUI()
+  }else if(trkIdx>i)trkIdx--;
+  await loadPlaylist();toast('Canción eliminada');
+}
+
+// ================================================================
+// PRINT (Ctrl+Shift+P)
+// ================================================================
+async function doPrint(){
+  const all=await dbAll('posts');
+  all.sort((a,b)=>(b.ts||0)-(a.ts||0));
+  const rows=await Promise.all(all.map(async p=>({...p,txt:await dec(p.text||'')})));
+  document.getElementById('pt-date').textContent='Impreso el '+new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('pt-posts').innerHTML=rows.map(p=>`
+    <div class="pt-post">
+      <div class="pt-phdr"><div class="pt-pdate">${p.date||''}</div><span class="pt-pstk">${p.sticker||'🌸'}</span></div>
+      <div class="pt-ptxt">${esc(p.txt)}</div>
+      ${p.image?`<img src="${p.image}" class="pt-pimg">`:''}
+    </div>`).join('');
+  window.print();
+}
+
+// ================================================================
+// MODAL UTILS
+// ================================================================
+function closeModal(id){document.getElementById(id).classList.remove('on')}
+
+// ================================================================
+// INIT
+// ================================================================
+boot().catch(console.error);
 </script>
 </body>
 </html>
