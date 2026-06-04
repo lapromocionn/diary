@@ -1150,16 +1150,21 @@ async function doAuth(username, pin, isNew){
     const { data: signUpData, error: signUpErr } = await sb.auth.signUp({ email, password: pin, options:{ data:{ username } } });
     if(signUpErr){
       const msg = (signUpErr.message||'').toLowerCase();
-      if(msg.includes('registered') || msg.includes('already')){
-        showPinErr('PIN incorrecto 💕'); pinBuf=''; updateDots(); return;
+      if(msg.includes('registered') || msg.includes('already') || msg.includes('exists')){
+        // Account exists but in bad state → try login anyway
+        const res3 = await sb.auth.signInWithPassword({ email, password: pin });
+        if(!res3.error){ data = res3.data; }
+        else {
+          showPinErr('⚠️ Borra luenna@sweetdiary.local en Supabase → Auth → Users');
+          pinBuf=''; updateDots(); return;
+        }
+      } else {
+        showPinErr('Error Supabase: ' + (signUpErr.message||'cuenta no creada'));
+        pinBuf=''; updateDots(); return;
       }
-      showPinErr('Error: ' + (signUpErr.message||'cuenta no creada')); pinBuf=''; updateDots(); return;
-    }
-    if(signUpData?.session){
-      // Auto-confirm enabled in Supabase → session created immediately
+    } else if(signUpData?.session){
       data = signUpData;
     } else if(signUpData?.user && !signUpData?.session){
-      // Email confirmation required — show actionable error
       showPinErr('⚠️ Desactiva "Confirm email" en Supabase Auth → Settings → Email');
       pinBuf=''; updateDots(); return;
     } else {
