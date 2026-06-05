@@ -1135,7 +1135,8 @@ async function handlePin(pin){
 
 async function doAuth(username, pin, isNew){
   const email = username + '@sweetdiary.local';
-  let { data, error } = await sb.auth.signInWithPassword({ email, password: pin });
+  const pass  = pin + '_sD!x';
+  let { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
   if(error){
     if(!isNew){
       // Any login failure (wrong PIN or no account) → switch to setup mode.
@@ -1147,12 +1148,12 @@ async function doAuth(username, pin, isNew){
       return;
     }
     // isNew = confirm step: attempt signup
-    const { data: signUpData, error: signUpErr } = await sb.auth.signUp({ email, password: pin, options:{ data:{ username } } });
+    const { data: signUpData, error: signUpErr } = await sb.auth.signUp({ email, password: pass, options:{ data:{ username } } });
     if(signUpErr){
       const msg = (signUpErr.message||'').toLowerCase();
       if(msg.includes('registered') || msg.includes('already') || msg.includes('exists')){
         // Account exists but in bad state → try login anyway
-        const res3 = await sb.auth.signInWithPassword({ email, password: pin });
+        const res3 = await sb.auth.signInWithPassword({ email, password: pass });
         if(!res3.error){ data = res3.data; }
         else {
           showPinErr('⚠️ Borra luenna@sweetdiary.local en Supabase → Auth → Users');
@@ -1168,7 +1169,7 @@ async function doAuth(username, pin, isNew){
       showPinErr('⚠️ Desactiva "Confirm email" en Supabase Auth → Settings → Email');
       pinBuf=''; updateDots(); return;
     } else {
-      const res2 = await sb.auth.signInWithPassword({ email, password: pin });
+      const res2 = await sb.auth.signInWithPassword({ email, password: pass });
       if(res2.error){
         const em = (res2.error.message||'').toLowerCase();
         if(em.includes('confirm') || em.includes('verified') || em.includes('not confirmed')){
