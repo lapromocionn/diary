@@ -1051,26 +1051,20 @@ const mAll=()=>new Promise((res,rej)=>{const r=mxr().getAll();r.onsuccess=()=>re
 const mPut=(v)=>new Promise((res,rej)=>{const r=mxw().put(v);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 const mDel=(k)=>new Promise((res,rej)=>{const r=mxw().delete(k);r.onsuccess=()=>res();r.onerror=()=>rej(r.error)});
 
+// ── FIXED USER IDs (no Supabase auth) ────────────────────────
+const USER_IDS = {
+  david:  '00000000-0000-0000-0000-000000000001',
+  luenna: '00000000-0000-0000-0000-000000000002'
+};
+
 // ── BOOT ─────────────────────────────────────────────────────
 async function boot(){
   musicDB = await openMusicDB();
-  const { data:{ session } } = await sb.auth.getSession();
   const load = document.getElementById('load');
   load.classList.add('out');
   setTimeout(()=>load.style.display='none', 420);
-  if(session){
-    currentUser = await loadProfile(session.user.id);
-    if(currentUser) await launchApp();
-    else showUserSelect();
-  } else {
-    showUserSelect();
-  }
+  showUserSelect();
   registerSW();
-}
-
-async function loadProfile(uid){
-  const { data } = await sb.from('profiles').select('*').eq('id', uid).single();
-  return data ? { id: data.id, username: data.username } : null;
 }
 
 // ── AUTH SCREENS ──────────────────────────────────────────────
@@ -1125,70 +1119,31 @@ async function handlePin(pin){
       setTimeout(()=>{document.getElementById('pin-title').textContent='Crea tu PIN';document.getElementById('pin-desc').textContent='Elige 4 números para entrar'},1600);
       return;
     }
-    // Actually do signup
-    await doAuth(selectedUsername, pin, true);
+    // Save PIN to settings table (no Supabase auth)
+    const { error } = await sb.from('settings').upsert({key:'pin_'+selectedUsername, value:pin});
+    if(error){ showPinErr('Error al guardar PIN 😕'); pinBuf=''; updateDots(); return; }
+    pendingPin = pin;
+    await loginUser(selectedUsername);
     return;
   }
-  // pinMode === 'login'
-  await doAuth(selectedUsername, pin, false);
-}
-
-async function doAuth(username, pin, isNew){
-  const email = username + '@sweetdiary.local';
-  const pass  = pin + '_sD!x';
-  let { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-  if(error){
-    if(!isNew){
-      // Any login failure (wrong PIN or no account) → switch to setup mode.
-      // If an account already exists, signup in confirm step will catch it.
-      pinBuf=''; pinMode='setup'; pinFirst=''; updateDots();
-      document.getElementById('pin-title').textContent='Crea tu PIN 🔐';
-      document.getElementById('pin-desc').textContent='Primera vez — elige 4 números';
-      document.getElementById('pin-err').classList.remove('on');
-      return;
-    }
-    // isNew = confirm step: attempt signup
-    const { data: signUpData, error: signUpErr } = await sb.auth.signUp({ email, password: pass, options:{ data:{ username } } });
-    if(signUpErr){
-      const msg = (signUpErr.message||'').toLowerCase();
-      if(msg.includes('registered') || msg.includes('already') || msg.includes('exists')){
-        // Account exists but in bad state → try login anyway
-        const res3 = await sb.auth.signInWithPassword({ email, password: pass });
-        if(!res3.error){ data = res3.data; }
-        else {
-          showPinErr('⚠️ Borra luenna@sweetdiary.local en Supabase → Auth → Users');
-          pinBuf=''; updateDots(); return;
-        }
-      } else {
-        showPinErr('Error Supabase: ' + (signUpErr.message||'cuenta no creada'));
-        pinBuf=''; updateDots(); return;
-      }
-    } else if(signUpData?.session){
-      data = signUpData;
-    } else if(signUpData?.user && !signUpData?.session){
-      showPinErr('⚠️ Desactiva "Confirm email" en Supabase Auth → Settings → Email');
-      pinBuf=''; updateDots(); return;
-    } else {
-      const res2 = await sb.auth.signInWithPassword({ email, password: pass });
-      if(res2.error){
-        const em = (res2.error.message||'').toLowerCase();
-        if(em.includes('confirm') || em.includes('verified') || em.includes('not confirmed')){
-          showPinErr('⚠️ Desactiva "Confirm email" en Supabase Auth → Settings → Email');
-        } else {
-          showPinErr('PIN incorrecto 💕');
-        }
-        pinBuf=''; updateDots(); return;
-      }
-      data = res2.data;
-    }
+  // login mode — fetch PIN from settings
+  const { data } = await sb.from('settings').select('value').eq('key','pin_'+selectedUsername).single();
+  if(!data){
+    pinBuf=''; pinMode='setup'; pinFirst=''; updateDots();
+    document.getElementById('pin-title').textContent='Crea tu PIN 🔐';
+    document.getElementById('pin-desc').textContent='Primera vez — elige 4 números';
+    document.getElementById('pin-err').classList.remove('on');
+    return;
   }
-  if(!data?.user){ showPinErr('Error inesperado 😕'); return; }
-  const { data: existing } = await sb.from('profiles').select('id').eq('id', data.user.id).single();
-  if(!existing){
-    await sb.from('profiles').insert({ id: data.user.id, username });
+  if(data.value !== pin){
+    showPinErr('PIN incorrecto 💕'); pinBuf=''; updateDots(); return;
   }
   pendingPin = pin;
-  currentUser = { id: data.user.id, username };
+  await loginUser(selectedUsername);
+}
+
+async function loginUser(username){
+  currentUser = { id: USER_IDS[username], username };
   document.getElementById('pin').classList.remove('on');
   await launchApp();
   await maybePromptSecretQuestion();
@@ -1914,9 +1869,10 @@ async function submitRecovery(){
   }
   const pin = await decryptPin(data.pin_enc, aHash);
   if(!pin){toast('Error al descifrar. Contacta a tu pareja 😕');return;}
+  pendingPin = pin;
   _resetPinUI();
   toast('Acceso recuperado 🔑');
-  setTimeout(()=>doAuth(selectedUsername, pin, false), 400);
+  setTimeout(()=>loginUser(selectedUsername), 400);
 }
 
 function cancelRecovery(){
